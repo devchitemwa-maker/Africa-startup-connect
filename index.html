@@ -9,6 +9,9 @@
 
 <body class="bg-white text-gray-800">
 
+<!-- ================= LANDING ================= -->
+<div id="landing">
+
 <header class="border-b">
   <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
     <h1 class="text-2xl font-bold text-blue-600">Africa Startup Connect</h1>
@@ -50,16 +53,21 @@
   </button>
 </section>
 
-<!-- DASHBOARD -->
+</div>
+<!-- ================= END LANDING ================= -->
+
+
+<!-- ================= DASHBOARD ================= -->
 <section id="dashboard" class="hidden py-20 text-center">
   <h2 class="text-3xl font-bold mb-4">
     Welcome, <span id="profile-name"></span>
   </h2>
-  <p>Role: <span id="profile-role"></span></p>
-  <p>Capital: <span id="profile-capital"></span></p>
-  <p>Country: <span id="profile-country"></span></p>
 
-  <button onclick="logout()" class="mt-6 border px-6 py-3 rounded">
+  <p class="mb-1">Role: <span id="profile-role"></span></p>
+  <p class="mb-1">Capital: <span id="profile-capital"></span></p>
+  <p class="mb-6">Country: <span id="profile-country"></span></p>
+
+  <button onclick="logout()" class="border px-6 py-3 rounded">
     Log Out
   </button>
 </section>
@@ -68,39 +76,54 @@
   ASC — Where Africa Builds Together.
 </footer>
 
+<!-- ================= SCRIPTS ================= -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const supabaseClient = supabase.createClient(
   "https://unyvcihnjlkanwfrnoop.supabase.co",
-  "YOUR_ANON_KEY"
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVueXZjaWhuamxrYW53ZnJub29wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NTg0NjYsImV4cCI6MjA4MTUzNDQ2Nn0.F_MApAFHM_OZPbQzpScUtyRtDvWjsHBBC4rmqyB6V-k"
 );
+
+/* ---------- UI HELPERS ---------- */
+function showDashboard() {
+  document.getElementById("landing").style.display = "none";
+  document.getElementById("dashboard").classList.remove("hidden");
+}
+
+function showLanding() {
+  document.getElementById("landing").style.display = "block";
+  document.getElementById("dashboard").classList.add("hidden");
+}
 
 /* ---------- AUTO LOGIN ---------- */
 document.addEventListener("DOMContentLoaded", async () => {
   const { data: { session } } = await supabaseClient.auth.getSession();
+
   if (session) {
     showDashboard();
     await loadProfile();
+  } else {
+    showLanding();
   }
 });
 
 /* ---------- SIGN UP ---------- */
 async function signUp() {
-  const fullName = document.getElementById("full_name").value;
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  const role = document.getElementById("role").value;
-  const capital = document.getElementById("capital").value;
-  const country = document.getElementById("country").value;
+  const fullName = full_name.value;
+  const emailVal = email.value;
+  const passwordVal = password.value;
+  const roleVal = role.value;
+  const capitalVal = capital.value;
+  const countryVal = country.value;
 
-  if (!fullName || !email || !password) {
-    alert("Fill all fields");
+  if (!fullName || !emailVal || !passwordVal || !roleVal || !capitalVal || !countryVal) {
+    alert("Please fill all fields");
     return;
   }
 
   const { data, error } = await supabaseClient.auth.signUp({
-    email,
-    password,
+    email: emailVal,
+    password: passwordVal
   });
 
   if (error) {
@@ -111,9 +134,9 @@ async function signUp() {
   await supabaseClient.from("profiles").insert({
     id: data.user.id,
     full_name: fullName,
-    role,
-    capital_range: capital,
-    country,
+    role: roleVal,
+    capital_range: capitalVal,
+    country: countryVal
   });
 
   showDashboard();
@@ -122,12 +145,9 @@ async function signUp() {
 
 /* ---------- SIGN IN ---------- */
 async function signIn() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
   const { error } = await supabaseClient.auth.signInWithPassword({
-    email,
-    password,
+    email: email.value,
+    password: password.value
   });
 
   if (error) {
@@ -151,8 +171,8 @@ async function loadProfile() {
     .single();
 
   if (error || !data) {
-    console.error("Profile load failed", error);
-    alert("Profile not found. Please sign up again.");
+    console.error(error);
+    alert("Profile not found");
     return;
   }
 
@@ -162,16 +182,10 @@ async function loadProfile() {
   document.getElementById("profile-country").textContent = data.country;
 }
 
-/* ---------- UI ---------- */
-function showDashboard() {
-  document.getElementById("signup").style.display = "none";
-  document.getElementById("dashboard").classList.remove("hidden");
-}
-
 /* ---------- LOGOUT ---------- */
 async function logout() {
   await supabaseClient.auth.signOut();
-  location.reload();
+  showLanding();
 }
 </script>
 
