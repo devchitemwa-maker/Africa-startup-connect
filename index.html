@@ -139,7 +139,32 @@
 <footer class="border-t py-6 text-center text-gray-500">
   ASC — Where Africa Builds Together.
 </footer>
-<!-- Supabase JS -->
+<!-- DASHBOARD -->
+<section id="dashboard" class="hidden py-20 bg-gray-50">
+  <div class="max-w-4xl mx-auto px-6 text-center">
+    <h2 class="text-3xl font-bold mb-4">Welcome to Your Dashboard</h2>
+    <p class="text-gray-600 mb-6">
+      You are logged in to Africa Startup Connect.
+    </p>
+
+    <div class="grid md:grid-cols-3 gap-6 mt-8">
+      <div class="bg-white p-6 rounded-xl shadow">Profile</div>
+      <div class="bg-white p-6 rounded-xl shadow">Matches</div>
+      <div class="bg-white p-6 rounded-xl shadow">Projects</div>
+    </div>
+
+    <button onclick="logout()" class="mt-10 border px-6 py-3 rounded">
+      Log Out
+    </button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="border-t py-6 text-center text-gray-500">
+  ASC — Where Africa Builds Together.
+</footer>
+
+<!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -156,18 +181,10 @@
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
-    if (!email || !password) {
-      alert("Email and password required");
-      return;
-    }
-
     const { error } = await supabaseClient.auth.signUp({ email, password });
+    if (error) return alert(error.message);
 
-    if (error) {
-      alert(error.message);
-    } else {
-      showDashboard();
-    }
+    showDashboard();
   }
 
   async function signIn() {
@@ -178,23 +195,20 @@
       email,
       password,
     });
+    if (error) return alert(error.message);
 
-    if (error) {
-      alert(error.message);
-    } else {
-      showDashboard();
-    }
+    showDashboard();
   }
 
   function showDashboard() {
     document.getElementById("email").style.display = "none";
     document.getElementById("password").style.display = "none";
-
     document.querySelector('[onclick="signUp()"]').style.display = "none";
     document.querySelector('[onclick="signIn()"]').style.display = "none";
 
-    document.getElementById("dashboard").classList.remove("hidden");
-    document.getElementById("dashboard").scrollIntoView({ behavior: "smooth" });
+    const dashboard = document.getElementById("dashboard");
+    dashboard.classList.remove("hidden");
+    dashboard.scrollIntoView({ behavior: "smooth" });
   }
 
   async function logout() {
@@ -202,6 +216,9 @@
     location.reload();
   }
 </script>
-  
+
+</body>
+</html>
+
 </body>
 </html>
