@@ -146,11 +146,39 @@ async function loadProfile() {
 /* PROJECTS */
 async function createProject() {
   const { data: { user } } = await supabaseClient.auth.getUser();
-  await supabaseClient.from("projects").insert({
-    user_id: user.id,
-    title: project_title.value,
-    description: project_description.value,
-    capital_needed: project_capital.value,
+
+  if (!user) {
+    alert("You must be logged in");
+    return;
+  }
+
+  if (!project_title.value || !project_description.value) {
+    alert("Please fill project title and description");
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("projects")
+    .insert({
+      owner_id: user.id,   // ✅ FIXED
+      title: project_title.value,
+      description: project_description.value,
+      capital_needed: project_capital.value
+    });
+
+  if (error) {
+    console.error("Project insert error:", error);
+    alert(error.message);
+    return;
+  }
+
+  project_title.value = "";
+  project_description.value = "";
+  project_capital.value = "";
+
+  await loadProjects();
+}
+
   });
   loadProjects();
 }
