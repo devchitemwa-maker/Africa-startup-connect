@@ -121,17 +121,22 @@
 </section>
 
 <!-- SIGNUP CTA -->
-<section id="signup" class="py-20 text-center">
-  <h3 class="text-3xl font-bold mb-6">
-    Start Building Today
-  </h3>
-  <p class="text-gray-600 mb-8 max-w-xl mx-auto">
-    Join Africa Startup Connect and become part of Africa’s next generation of businesses.
-  </p>
-  <a href="#" class="bg-blue-600 text-white px-10 py-4 rounded-xl text-lg">
-    Create Your ASC Account
-  </a>
-</section>
+<input id="email" type="email" placeholder="Email"
+  class="border p-3 rounded w-full mb-3" />
+
+<input id="password" type="password" placeholder="Password"
+  class="border p-3 rounded w-full mb-3" />
+
+<button onclick="signUp()"
+  class="bg-blue-600 text-white w-full py-3 rounded mb-2">
+  Sign Up
+</button>
+
+<button onclick="signIn()"
+  class="border w-full py-3 rounded">
+  Log In
+</button>
+
 
 <!-- FOOTER -->
 <footer class="border-t py-6 text-center text-gray-500">
