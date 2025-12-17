@@ -205,7 +205,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 /* =========================
    SIGN UP
 ========================= */
-async function signUp() {
+async function signUp() { <input id="full_name" type="text" placeholder="Full Name"
+  class="border p-3 rounded w-full mb-3" />
+
   const email = emailInput().value;
   const password = passwordInput().value;
   const role = roleInput().value;
