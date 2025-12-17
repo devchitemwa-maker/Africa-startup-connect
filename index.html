@@ -30,8 +30,7 @@
       Build Real Businesses in Africa — Together
     </h2>
     <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-      Africa Startup Connect (ASC) connects entrepreneurs, investors, and skilled
-      partners to build real, profitable businesses — starting in Zambia.
+      Connect entrepreneurs, investors, and skilled partners to build real businesses.
     </p>
     <div class="flex justify-center gap-4">
       <a href="#signup" class="bg-blue-600 text-white px-8 py-4 rounded-xl text-lg">
@@ -47,45 +46,23 @@
 <!-- HOW IT WORKS -->
 <section id="how" class="py-20">
   <div class="max-w-7xl mx-auto px-6">
-    <h3 class="text-3xl font-bold text-center mb-12">
-      How Africa Startup Connect Works
-    </h3>
-
+    <h3 class="text-3xl font-bold text-center mb-12">How It Works</h3>
     <div class="grid md:grid-cols-3 gap-8 text-center">
-      <div class="p-8 border rounded-xl">
-        <h4 class="text-xl font-semibold mb-3">1. Join</h4>
-        <p class="text-gray-600">Sign up as Entrepreneur, Investor, or Skilled Partner.</p>
-      </div>
-      <div class="p-8 border rounded-xl">
-        <h4 class="text-xl font-semibold mb-3">2. Set Details</h4>
-        <p class="text-gray-600">Choose capital range, role, and country.</p>
-      </div>
-      <div class="p-8 border rounded-xl">
-        <h4 class="text-xl font-semibold mb-3">3. Build</h4>
-        <p class="text-gray-600">Get matched and build businesses together.</p>
-      </div>
+      <div class="p-8 border rounded-xl">Join</div>
+      <div class="p-8 border rounded-xl">Set Details</div>
+      <div class="p-8 border rounded-xl">Build Together</div>
     </div>
   </div>
 </section>
 
-<!-- WHO IT’S FOR -->
+<!-- WHO -->
 <section id="who" class="bg-gray-50 py-20">
-  <div class="max-w-7xl mx-auto px-6">
-    <h3 class="text-3xl font-bold text-center mb-12">Who ASC Is For</h3>
-
+  <div class="max-w-7xl mx-auto px-6 text-center">
+    <h3 class="text-3xl font-bold mb-12">Who ASC Is For</h3>
     <div class="grid md:grid-cols-3 gap-8">
-      <div class="bg-white p-8 rounded-xl shadow">
-        <h4 class="text-xl font-semibold mb-2">🧠 Entrepreneurs</h4>
-        <p>Capital: K1,000 – K500,000</p>
-      </div>
-      <div class="bg-white p-8 rounded-xl shadow">
-        <h4 class="text-xl font-semibold mb-2">💰 Investors</h4>
-        <p>Capital: K1,000 – K1,000,000</p>
-      </div>
-      <div class="bg-white p-8 rounded-xl shadow">
-        <h4 class="text-xl font-semibold mb-2">🛠 Skilled Partners</h4>
-        <p>Tech · Agriculture · Finance · Operations</p>
-      </div>
+      <div class="bg-white p-6 shadow rounded-xl">Entrepreneurs</div>
+      <div class="bg-white p-6 shadow rounded-xl">Investors</div>
+      <div class="bg-white p-6 shadow rounded-xl">Skilled Partners</div>
     </div>
   </div>
 </section>
@@ -93,6 +70,9 @@
 <!-- SIGNUP -->
 <section id="signup" class="max-w-md mx-auto py-20 px-6">
   <h3 class="text-2xl font-bold mb-6 text-center">Create Your Account</h3>
+
+  <input id="full_name" type="text" placeholder="Full Name"
+    class="border p-3 rounded w-full mb-3" />
 
   <input id="email" type="email" placeholder="Email"
     class="border p-3 rounded w-full mb-3" />
@@ -128,44 +108,13 @@
 <!-- DASHBOARD -->
 <section id="dashboard" class="hidden py-20 bg-gray-50">
   <div class="max-w-4xl mx-auto px-6 text-center">
-    <h2 class="text-3xl font-bold mb-4">Welcome to Your Dashboard</h2>
+    <h2 class="text-3xl font-bold mb-4">
+      Welcome, <span id="profile-name"></span>
+    </h2>
 
-    <p class="text-gray-600 mb-2">
-      Role: <span id="profile-role" class="font-semibold"></span>
-    </p>
-    <p class="text-gray-600 mb-2">
-      Capital: <span id="profile-capital" class="font-semibold"></span>
-    </p>
-    <p class="text-gray-600 mb-8">
-      Country: <span id="profile-country" class="font-semibold"></span>
-    </p>
-
-   <div class="bg-white p-6 rounded-xl shadow max-w-xl mx-auto">
-  <h3 class="text-xl font-bold mb-4">Your Profile</h3>
-
-  <label class="block mb-2 text-sm">Role</label>
-  <select id="profile_role" class="border p-3 rounded w-full mb-4">
-    <option value="entrepreneur">Entrepreneur</option>
-    <option value="investor">Investor</option>
-    <option value="partner">Skilled Partner</option>
-  </select>
-
-  <label class="block mb-2 text-sm">Capital Range</label>
-  <select id="profile_capital" class="border p-3 rounded w-full mb-4">
-    <option value="1000-500000">K1,000 – K500,000</option>
-    <option value="1000-1000000">K1,000 – K1,000,000</option>
-  </select>
-
-  <label class="block mb-2 text-sm">Country</label>
-  <input id="profile_country" type="text"
-    class="border p-3 rounded w-full mb-4" />
-
-  <button onclick="updateProfile()"
-    class="bg-blue-600 text-white w-full py-3 rounded">
-    Save Profile
-  </button>
-</div>
-
+    <p>Role: <span id="profile-role"></span></p>
+    <p>Capital: <span id="profile-capital"></span></p>
+    <p>Country: <span id="profile-country"></span></p>
 
     <button onclick="logout()" class="mt-10 border px-6 py-3 rounded">
       Log Out
@@ -173,12 +122,11 @@
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer class="border-t py-6 text-center text-gray-500">
   ASC — Where Africa Builds Together.
 </footer>
 
-<!-- Supabase JS (REQUIRED) -->
+<!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -191,152 +139,82 @@ const supabaseClient = supabase.createClient(
   SUPABASE_ANON_KEY
 );
 
-/* =========================
-   AUTO LOGIN
-========================= */
+/* AUTO LOGIN */
 document.addEventListener("DOMContentLoaded", async () => {
   const { data } = await supabaseClient.auth.getSession();
   if (data.session) {
     showDashboard();
-    await loadUserProfile();
+    loadProfile();
   }
 });
 
-/* =========================
-   SIGN UP
-========================= */
-async function signUp() { <input id="full_name" type="text" placeholder="Full Name"
-  class="border p-3 rounded w-full mb-3" />
+/* SIGN UP */
+async function signUp() {
+  const fullName = full_name.value;
+  const email = email.value;
+  const password = password.value;
+  const role = role.value;
+  const capital = capital.value;
+  const country = country.value;
 
-  const email = emailInput().value;
-  const password = passwordInput().value;
-  const role = roleInput().value;
-  const capital = capitalInput().value;
-  const country = countryInput().value;
-
-  if (!email || !password || !role || !capital || !country) {
-    return alert("Please fill all fields");
+  if (!fullName || !email || !password || !role || !capital || !country) {
+    return alert("Fill all fields");
   }
 
-  const { data, error } = await supabaseClient.auth.signUp({
-    email,
-    password,
-  });
-
+  const { data, error } = await supabaseClient.auth.signUp({ email, password });
   if (error) return alert(error.message);
 
   await supabaseClient.from("profiles").insert({
     id: data.user.id,
+    full_name: fullName,
     role,
     capital_range: capital,
     country,
   });
 
   showDashboard();
-  await loadUserProfile();
+  loadProfile();
 }
 
-/* =========================
-   SIGN IN
-========================= */
+/* SIGN IN */
 async function signIn() {
-  const email = emailInput().value;
-  const password = passwordInput().value;
-
   const { error } = await supabaseClient.auth.signInWithPassword({
-    email,
-    password,
+    email: email.value,
+    password: password.value,
   });
-
   if (error) return alert(error.message);
 
   showDashboard();
-  await loadUserProfile();
+  loadProfile();
 }
 
-/* =========================
-   LOAD PROFILE
-========================= */
-async function loadUserProfile() {
+/* LOAD PROFILE */
+async function loadProfile() {
   const { data: { user } } = await supabaseClient.auth.getUser();
-  if (!user) return;
-
-  const { data, error } = await supabaseClient
+  const { data } = await supabaseClient
     .from("profiles")
     .select("*")
     .eq("id", user.id)
     .single();
 
-  if (error) {
-    console.error(error);
-    return;
-  }
-
-  document.getElementById("profile-role").textContent = data.role;
-  document.getElementById("profile-capital").textContent = data.capital_range;
-  document.getElementById("profile-country").textContent = data.country;
-
-  document.getElementById("profile_role").value = data.role;
-  document.getElementById("profile_capital").value = data.capital_range;
-  document.getElementById("profile_country").value = data.country;
+  profile-name.textContent = data.full_name;
+  profile-role.textContent = data.role;
+  profile-capital.textContent = data.capital_range;
+  profile-country.textContent = data.country;
 }
 
-/* =========================
-   UPDATE PROFILE
-========================= */
-async function updateProfile() {
-  const role = document.getElementById("profile_role").value;
-  const capital = document.getElementById("profile_capital").value;
-  const country = document.getElementById("profile_country").value;
-
-  const { data: { user } } = await supabaseClient.auth.getUser();
-  if (!user) return alert("Not logged in");
-
-  const { error } = await supabaseClient
-    .from("profiles")
-    .update({
-      role,
-      capital_range: capital,
-      country,
-    })
-    .eq("id", user.id);
-
-  if (error) {
-    alert("Update failed");
-    console.error(error);
-  } else {
-    alert("Profile updated successfully");
-    await loadUserProfile();
-  }
-}
-
-/* =========================
-   DASHBOARD
-========================= */
+/* DASHBOARD */
 function showDashboard() {
-  document.getElementById("signup").style.display = "none";
-  document.getElementById("dashboard").classList.remove("hidden");
+  signup.style.display = "none";
+  dashboard.classList.remove("hidden");
 }
 
-/* =========================
-   LOGOUT
-========================= */
+/* LOGOUT */
 async function logout() {
   await supabaseClient.auth.signOut();
   location.reload();
 }
-
-/* =========================
-   HELPERS
-========================= */
-const emailInput = () => document.getElementById("email");
-const passwordInput = () => document.getElementById("password");
-const roleInput = () => document.getElementById("role");
-const capitalInput = () => document.getElementById("capital");
-const countryInput = () => document.getElementById("country");
 </script>
-
 
 </body>
 </html>
-
