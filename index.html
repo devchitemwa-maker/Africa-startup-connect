@@ -12,7 +12,7 @@
 <header class="border-b bg-white">
   <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
     <h1 class="text-2xl font-bold text-blue-600">Africa Startup Connect</h1>
-    <button onclick="logout()" class="border px-4 py-2 rounded">
+    <button id="logoutBtn" onclick="logout()" class="hidden border px-4 py-2 rounded">
       Log Out
     </button>
   </div>
@@ -110,39 +110,33 @@ const supabaseClient = supabase.createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVueXZjaWhuamxrYW53ZnJub29wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NTg0NjYsImV4cCI6MjA4MTUzNDQ2Nn0.F_MApAFHM_OZPbQzpScUtyRtDvWjsHBBC4rmqyB6V-k"
 );
 
-/* AUTO LOGIN */
-document.addEventListener("DOMContentLoaded", async () => {
-  const { data: { session } } = await supabaseClient.auth.getSession();
+/* 🔐 AUTH STATE LISTENER (CRITICAL FIX) */
+supabaseClient.auth.onAuthStateChange((event, session) => {
   if (session) {
     showDashboard();
-    await loadProfile();
-    await loadProjects();
+    loadProfile();
+    loadProjects();
+  } else {
+    showAuth();
   }
 });
 
 /* SIGN UP */
 async function signUp() {
-  const fullName = full_name.value;
-  const emailVal = email.value;
-  const passwordVal = password.value;
-
   const { data, error } = await supabaseClient.auth.signUp({
-    email: emailVal,
-    password: passwordVal,
+    email: email.value,
+    password: password.value,
   });
 
   if (error) return alert(error.message);
 
   await supabaseClient.from("profiles").insert({
     id: data.user.id,
-    full_name: fullName,
+    full_name: full_name.value,
     role: role.value,
     capital_range: capital.value,
     country: country.value,
   });
-
-  showDashboard();
-  await loadProfile();
 }
 
 /* SIGN IN */
@@ -151,11 +145,7 @@ async function signIn() {
     email: email.value,
     password: password.value,
   });
-  if (error) return alert(error.message);
-
-  showDashboard();
-  await loadProfile();
-  await loadProjects();
+  if (error) alert(error.message);
 }
 
 /* PROFILE */
@@ -176,19 +166,13 @@ async function loadProfile() {
 /* PROJECTS */
 async function createProject() {
   const { data: { user } } = await supabaseClient.auth.getUser();
-
   await supabaseClient.from("projects").insert({
     user_id: user.id,
     title: project_title.value,
     description: project_description.value,
     capital_needed: project_capital.value,
   });
-
-  project_title.value = "";
-  project_description.value = "";
-  project_capital.value = "";
-
-  await loadProjects();
+  loadProjects();
 }
 
 async function loadProjects() {
@@ -197,17 +181,14 @@ async function loadProjects() {
     .select("*")
     .order("created_at", { ascending: false });
 
-  const list = document.getElementById("project-list");
-  list.innerHTML = "";
-
+  project-list.innerHTML = "";
   data.forEach(p => {
-    list.innerHTML += `
+    project-list.innerHTML += `
       <div class="bg-white p-6 rounded-xl shadow">
-        <h4 class="text-xl font-bold mb-2">${p.title}</h4>
-        <p class="text-gray-600 mb-2">${p.description}</p>
-        <p class="font-semibold">Capital Needed: ${p.capital_needed}</p>
-      </div>
-    `;
+        <h4 class="font-bold">${p.title}</h4>
+        <p>${p.description}</p>
+        <p class="font-semibold mt-2">${p.capital_needed}</p>
+      </div>`;
   });
 }
 
@@ -215,15 +196,20 @@ async function loadProjects() {
 function showDashboard() {
   auth.style.display = "none";
   dashboard.classList.remove("hidden");
+  logoutBtn.classList.remove("hidden");
+}
+
+function showAuth() {
+  auth.style.display = "block";
+  dashboard.classList.add("hidden");
+  logoutBtn.classList.add("hidden");
 }
 
 /* LOGOUT */
 async function logout() {
   await supabaseClient.auth.signOut();
-  location.reload();
 }
 </script>
 
 </body>
 </html>
-
