@@ -161,25 +161,32 @@ const supabaseClient = supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
 );
-// ===== LOAD USER PROFILE (STEP 4) =====
-async function loadUserProfile() {
-  const { data: authData } = await supabaseClient.auth.getUser();
 
-  if (!authData.user) {
-    console.log("No authenticated user");
-    return;
+// ===== AUTO-LOGIN ON PAGE LOAD =====
+document.addEventListener("DOMContentLoaded", async () => {
+  const { data } = await supabaseClient.auth.getSession();
+  if (data.session) {
+    showDashboard();
+    await loadUserProfile();
   }
+});
 
-  const userId = authData.user.id;
+// ===== LOAD USER PROFILE =====
+async function loadUserProfile() {
+  const {
+    data: { user },
+  } = await supabaseClient.auth.getUser();
+
+  if (!user) return;
 
   const { data: profile, error } = await supabaseClient
     .from("profiles")
     .select("role, capital_range, country")
-    .eq("id", userId)
+    .eq("id", user.id)
     .single();
 
   if (error) {
-    console.error("Profile load error:", error);
+    console.error("Error loading profile:", error);
     return;
   }
 
@@ -187,21 +194,6 @@ async function loadUserProfile() {
   document.getElementById("profile-capital").textContent = profile.capital_range;
   document.getElementById("profile-country").textContent = profile.country;
 }
-
-// ===== AUTO-LOGIN ON PAGE LOAD =====
-document.addEventListener("DOMContentLoaded", async () => {
-  const { data } = await supabaseClient.auth.getSession();
-
- if (data.session) {
-  console.log("Session found, auto-show dashboard");
-  showDashboard();
-  loadUserProfile();
-}
-
-  } else {
-    console.log("No session found");
-  }
-});
 
 // ===== SIGNUP =====
 async function signUp() {
@@ -212,7 +204,8 @@ async function signUp() {
   const country = document.getElementById("country").value;
 
   if (!email || !password || !role || !capital || !country) {
-    return alert("Please fill all fields");
+    alert("Please fill all fields");
+    return;
   }
 
   const { data, error } = await supabaseClient.auth.signUp({
@@ -221,7 +214,8 @@ async function signUp() {
   });
 
   if (error) {
-    return alert("Signup error: " + error.message);
+    alert("Signup error: " + error.message);
+    return;
   }
 
   const user = data.user;
@@ -230,11 +224,11 @@ async function signUp() {
       id: user.id,
       role,
       capital_range: capital,
-      country
+      country,
     });
- showDashboard();
-loadUserProfile();
 
+    showDashboard();
+    await loadUserProfile();
   }
 }
 
@@ -243,29 +237,25 @@ async function signIn() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  const { data, error } = await supabaseClient.auth.signInWithPassword({
-    email,
-    password,
-  });
+  const { data, error } =
+    await supabaseClient.auth.signInWithPassword({
+      email,
+      password,
+    });
 
   if (error) {
-    return alert("Login error: " + error.message);
+    alert("Login error: " + error.message);
+    return;
   }
 
-  // Now data.session exists — show dashboard
-  if (data.session) {
-  if (data.session) {
+  // Show dashboard and load profile
   showDashboard();
-  loadUserProfile();
-}
-
-  }
+  await loadUserProfile();
 }
 
 // ===== SHOW DASHBOARD =====
 function showDashboard() {
   document.getElementById("signup").style.display = "none";
-  
   const dashboard = document.getElementById("dashboard");
   dashboard.classList.remove("hidden");
   dashboard.scrollIntoView({ behavior: "smooth" });
