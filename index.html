@@ -161,6 +161,20 @@
     SUPABASE_URL,
     SUPABASE_ANON_KEY
   );
+  <script>
+  // 🔐 AUTO-LOGIN ON PAGE LOAD (STEP 3)
+  document.addEventListener("DOMContentLoaded", async () => {
+    const { data } = await supabaseClient.auth.getSession();
+
+    if (data.session) {
+      console.log("Session found, auto-login");
+      showDashboard();
+    } else {
+      console.log("No session found");
+    }
+  });
+</script>
+
 
   async function signUp() {
     const email = email.value;
