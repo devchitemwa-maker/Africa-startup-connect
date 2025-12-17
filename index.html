@@ -131,6 +131,10 @@
   class="bg-blue-600 text-white w-full py-3 rounded mb-2">
   Sign Up
 </button>
+<button onclick="signIn()"
+  class="border w-full py-3 rounded">
+  Log In
+</button>
 <!-- DASHBOARD -->
 <section id="dashboard" class="hidden py-20 bg-gray-50">
   <div class="max-w-4xl mx-auto px-6 text-center">
@@ -138,13 +142,13 @@
       Welcome to Your Dashboard
     </h2>
     <p class="text-gray-600 mb-6">
-      You are now logged in to Africa Startup Connect.
+      You are logged in to Africa Startup Connect.
     </p>
 
     <div class="grid md:grid-cols-3 gap-6 mt-8">
       <div class="bg-white p-6 rounded-xl shadow">
-        <h3 class="font-semibold mb-2">My Profile</h3>
-        <p class="text-sm text-gray-600">View and update your details</p>
+        <h3 class="font-semibold mb-2">Profile</h3>
+        <p class="text-sm text-gray-600">Update your details</p>
       </div>
 
       <div class="bg-white p-6 rounded-xl shadow">
@@ -158,21 +162,11 @@
       </div>
     </div>
 
-    <button onclick="logout()"
-      class="mt-10 border px-6 py-3 rounded">
+    <button onclick="logout()" class="mt-10 border px-6 py-3 rounded">
       Log Out
     </button>
   </div>
 </section>
-else {alert("Signup successful!");
-  showDashboard();}
-
-<button onclick="signIn()"
-  class="border w-full py-3 rounded">
-  Log In
-</button>
-else {alert("Login successful!");
-  showDashboard();}
 
 
 <!-- FOOTER -->
@@ -266,17 +260,23 @@ else {alert("Login successful!");
     btn.style.display = "none";
   });
 
-  // show dashboard
-  document.getElementById("dashboard").classList.remove("hidden");
+  function showDashboard() {
+  // Hide signup inputs
+  document.getElementById("email").style.display = "none";
+  document.getElementById("password").style.display = "none";
 
-  // scroll to dashboard
-  document.getElementById("dashboard").scrollIntoView({ behavior: "smooth" });
+  // Hide ONLY signup/login buttons
+  document.querySelector('[onclick="signUp()"]').style.display = "none";
+  document.querySelector('[onclick="signIn()"]').style.display = "none";
+
+  // Show dashboard
+  const dashboard = document.getElementById("dashboard");
+  dashboard.classList.remove("hidden");
+
+  // Scroll to dashboard
+  dashboard.scrollIntoView({ behavior: "smooth" });
 }
 
-async function logout() {
-  await supabaseClient.auth.signOut();
-  location.reload();
-}
 
 </script>
 
