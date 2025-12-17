@@ -9,37 +9,30 @@
 
 <body class="bg-white text-gray-800">
 
-<!-- ================= HEADER ================= -->
+<!-- NAVBAR -->
 <header class="border-b">
   <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-    <h1 class="text-2xl font-bold text-blue-600">
-      Africa Startup Connect
-    </h1>
-    <button onclick="setView('auth')" class="bg-blue-600 text-white px-4 py-2 rounded-lg">
+    <h1 class="text-2xl font-bold text-blue-600">Africa Startup Connect</h1>
+    <a href="#signup" class="bg-blue-600 text-white px-4 py-2 rounded-lg">
       Get Started
-    </button>
+    </a>
   </div>
 </header>
 
-<!-- ================= LANDING ================= -->
-<section id="landing" class="py-20 text-center">
-  <h2 class="text-4xl font-bold mb-4">
-    Build Real Businesses in Africa — Together
-  </h2>
-  <p class="text-gray-600 max-w-2xl mx-auto mb-6">
-    Connect entrepreneurs, investors, and skilled partners to build
-    real, profitable businesses across Africa.
+<!-- HERO / LANDING -->
+<section id="landing" class="bg-gray-50 py-24 text-center">
+  <h2 class="text-4xl font-bold mb-4">Build Real Businesses in Africa</h2>
+  <p class="text-gray-600 max-w-xl mx-auto mb-6">
+    Connect entrepreneurs, investors, and skilled partners.
   </p>
-  <button onclick="setView('auth')" class="bg-blue-600 text-white px-8 py-4 rounded-xl text-lg">
+  <a href="#signup" class="bg-blue-600 text-white px-8 py-4 rounded-xl">
     Create Free Account
-  </button>
+  </a>
 </section>
 
-<!-- ================= AUTH ================= -->
-<section id="auth" class="hidden max-w-md mx-auto py-20 px-6">
-  <h3 class="text-2xl font-bold mb-6 text-center">
-    Create Account / Login
-  </h3>
+<!-- SIGNUP -->
+<section id="signup" class="max-w-md mx-auto py-20 px-6">
+  <h3 class="text-2xl font-bold mb-6 text-center">Create Account</h3>
 
   <input id="full_name" placeholder="Full Name"
     class="border p-3 rounded w-full mb-3" />
@@ -71,13 +64,12 @@
     Sign Up
   </button>
 
-  <button onclick="signIn()"
-    class="border w-full py-3 rounded">
+  <button onclick="signIn()" class="border w-full py-3 rounded">
     Log In
   </button>
 </section>
 
-<!-- ================= DASHBOARD ================= -->
+<!-- DASHBOARD -->
 <section id="dashboard" class="hidden py-20 bg-gray-50 text-center">
   <h2 class="text-3xl font-bold mb-4">
     Welcome, <span id="profile-name"></span>
@@ -87,8 +79,7 @@
   <p class="mb-1">Capital: <span id="profile-capital"></span></p>
   <p class="mb-6">Country: <span id="profile-country"></span></p>
 
-  <button onclick="logout()"
-    class="border px-6 py-3 rounded">
+  <button onclick="logout()" class="border px-6 py-3 rounded">
     Log Out
   </button>
 </section>
@@ -97,99 +88,110 @@
   ASC — Where Africa Builds Together.
 </footer>
 
-<!-- ================= SUPABASE ================= -->
+<!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-/* ========== CONFIG ========== */
 const supabaseClient = supabase.createClient(
   "https://unyvcihnjlkanwfrnoop.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVueXZjaWhuamxrYW53ZnJub29wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NTg0NjYsImV4cCI6MjA4MTUzNDQ2Nn0.F_MApAFHM_OZPbQzpScUtyRtDvWjsHBBC4rmqyB6V-k"
 );
 
-/* ========== VIEW MANAGER ========== */
-function setView(view) {
-  ["landing", "auth", "dashboard"].forEach(id => {
-    document.getElementById(id).classList.add("hidden");
-  });
-
-  document.getElementById(view).classList.remove("hidden");
-}
-
-/* ========== AUTO LOGIN ========== */
+/* ================= AUTO LOGIN ================= */
 document.addEventListener("DOMContentLoaded", async () => {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (session) {
-    setView("dashboard");
-    loadProfile();
-  } else {
-    setView("landing");
+    await loadProfile();
+    showDashboard();
   }
 });
 
-/* ========== SIGN UP ========== */
+/* ================= SIGN UP ================= */
 async function signUp() {
-  const fullName = full_name.value;
-  const email = email.value;
-  const password = password.value;
-  const role = role.value;
-  const capital = capital.value;
-  const country = country.value;
+  const fullName = full_name.value.trim();
+  const emailVal = email.value.trim();
+  const passwordVal = password.value.trim();
+  const roleVal = role.value;
+  const capitalVal = capital.value;
+  const countryVal = country.value.trim();
 
-  if (!fullName || !email || !password || !role || !capital || !country) {
-    return alert("Please fill all fields");
+  if (!fullName || !emailVal || !passwordVal || !roleVal || !capitalVal || !countryVal) {
+    alert("Please fill all fields");
+    return;
   }
 
-  const { data, error } = await supabaseClient.auth.signUp({ email, password });
-  if (error) return alert(error.message);
+  const { data, error } = await supabaseClient.auth.signUp({
+    email: emailVal,
+    password: passwordVal,
+  });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
 
   await supabaseClient.from("profiles").insert({
     id: data.user.id,
     full_name: fullName,
-    role,
-    capital_range: capital,
-    country
+    role: roleVal,
+    capital_range: capitalVal,
+    country: countryVal
   });
 
-  setView("dashboard");
-  loadProfile();
+  await loadProfile();
+  showDashboard();
 }
 
-/* ========== SIGN IN ========== */
+/* ================= SIGN IN ================= */
 async function signIn() {
-  const { error } = await supabaseClient.auth.signInWithPassword({
-    email: email.value,
-    password: password.value
-  });
-  if (error) return alert(error.message);
+  const emailVal = email.value.trim();
+  const passwordVal = password.value.trim();
 
-  setView("dashboard");
-  loadProfile();
+  const { error } = await supabaseClient.auth.signInWithPassword({
+    email: emailVal,
+    password: passwordVal,
+  });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  await loadProfile();
+  showDashboard();
 }
 
-/* ========== LOAD PROFILE ========== */
+/* ================= LOAD PROFILE ================= */
 async function loadProfile() {
   const { data: { user } } = await supabaseClient.auth.getUser();
   if (!user) return;
 
   const { data, error } = await supabaseClient
     .from("profiles")
-    .select("*")
+    .select("full_name, role, capital_range, country")
     .eq("id", user.id)
     .single();
 
   if (error || !data) {
-    alert("Profile missing. Please sign up again.");
+    alert("Profile not found. Please sign up again.");
     return;
   }
 
-  profile-name.textContent = data.full_name;
-  profile-role.textContent = data.role;
-  profile-capital.textContent = data.capital_range;
-  profile-country.textContent = data.country;
+  document.getElementById("profile-name").textContent = data.full_name;
+  document.getElementById("profile-role").textContent = data.role;
+  document.getElementById("profile-capital").textContent = data.capital_range;
+  document.getElementById("profile-country").textContent = data.country;
 }
 
-/* ========== LOGOUT ========== */
+/* ================= UI ================= */
+function showDashboard() {
+  document.getElementById("signup").style.display = "none";
+  document.getElementById("landing").style.display = "none";
+  document.getElementById("dashboard").classList.remove("hidden");
+  history.replaceState(null, "", location.pathname);
+}
+
+/* ================= LOGOUT ================= */
 async function logout() {
   await supabaseClient.auth.signOut();
   location.reload();
