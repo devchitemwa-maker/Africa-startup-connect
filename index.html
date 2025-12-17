@@ -131,11 +131,48 @@
   class="bg-blue-600 text-white w-full py-3 rounded mb-2">
   Sign Up
 </button>
+<!-- DASHBOARD -->
+<section id="dashboard" class="hidden py-20 bg-gray-50">
+  <div class="max-w-4xl mx-auto px-6 text-center">
+    <h2 class="text-3xl font-bold mb-4">
+      Welcome to Your Dashboard
+    </h2>
+    <p class="text-gray-600 mb-6">
+      You are now logged in to Africa Startup Connect.
+    </p>
+
+    <div class="grid md:grid-cols-3 gap-6 mt-8">
+      <div class="bg-white p-6 rounded-xl shadow">
+        <h3 class="font-semibold mb-2">My Profile</h3>
+        <p class="text-sm text-gray-600">View and update your details</p>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl shadow">
+        <h3 class="font-semibold mb-2">Matches</h3>
+        <p class="text-sm text-gray-600">Find partners & investors</p>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl shadow">
+        <h3 class="font-semibold mb-2">Projects</h3>
+        <p class="text-sm text-gray-600">Your business ideas</p>
+      </div>
+    </div>
+
+    <button onclick="logout()"
+      class="mt-10 border px-6 py-3 rounded">
+      Log Out
+    </button>
+  </div>
+</section>
+else {alert("Signup successful!");
+  showDashboard();}
 
 <button onclick="signIn()"
   class="border w-full py-3 rounded">
   Log In
 </button>
+else {alert("Login successful!");
+  showDashboard();}
 
 
 <!-- FOOTER -->
@@ -220,6 +257,27 @@
   statusDiv.style.color = "#2A4365";
   statusDiv.textContent = "Supabase Loaded";
   document.body.appendChild(statusDiv);
+  function showDashboard() {
+  // hide signup area
+  document.getElementById("email").style.display = "none";
+  document.getElementById("password").style.display = "none";
+
+  document.querySelectorAll("button").forEach(btn => {
+    btn.style.display = "none";
+  });
+
+  // show dashboard
+  document.getElementById("dashboard").classList.remove("hidden");
+
+  // scroll to dashboard
+  document.getElementById("dashboard").scrollIntoView({ behavior: "smooth" });
+}
+
+async function logout() {
+  await supabaseClient.auth.signOut();
+  location.reload();
+}
+
 </script>
 
 
