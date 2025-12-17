@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -130,7 +129,16 @@
 <section id="dashboard" class="hidden py-20 bg-gray-50">
   <div class="max-w-4xl mx-auto px-6 text-center">
     <h2 class="text-3xl font-bold mb-4">Welcome to Your Dashboard</h2>
-    <p class="text-gray-600 mb-8">You are logged in successfully.</p>
+
+    <p class="text-gray-600 mb-2">
+      Role: <span id="profile-role" class="font-semibold"></span>
+    </p>
+    <p class="text-gray-600 mb-2">
+      Capital: <span id="profile-capital" class="font-semibold"></span>
+    </p>
+    <p class="text-gray-600 mb-8">
+      Country: <span id="profile-country" class="font-semibold"></span>
+    </p>
 
     <div class="grid md:grid-cols-3 gap-6">
       <div class="bg-white p-6 rounded-xl shadow">Profile</div>
@@ -195,7 +203,7 @@ async function loadUserProfile() {
   document.getElementById("profile-country").textContent = profile.country;
 }
 
-// ===== SIGNUP =====
+// ===== SIGNUP 👍
 async function signUp() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -232,7 +240,7 @@ async function signUp() {
   }
 }
 
-// ===== SIGNIN =====
+// ===== SIGNIN 👍
 async function signIn() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -248,12 +256,11 @@ async function signIn() {
     return;
   }
 
-  // Show dashboard and load profile
   showDashboard();
   await loadUserProfile();
 }
 
-// ===== SHOW DASHBOARD =====
+// ===== SHOW DASHBOARD 👍
 function showDashboard() {
   document.getElementById("signup").style.display = "none";
   const dashboard = document.getElementById("dashboard");
@@ -261,13 +268,13 @@ function showDashboard() {
   dashboard.scrollIntoView({ behavior: "smooth" });
 }
 
-// ===== LOGOUT =====
+// ===== LOGOUT 👍
 async function logout() {
   await supabaseClient.auth.signOut();
   location.reload();
 }
 </script>
 
-
 </body>
 </html>
+
