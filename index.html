@@ -120,30 +120,61 @@ window.addEventListener("load", async () => {
   }
 });
 
-// ---------- SIGN UP ----------
-signupBtn.onclick = async () => {
+async function signUp() {
+  if (!email.value || !password.value) {
+    showStatus("Email and password required", true);
+    return;
+  }
+
+  showStatus("Creating account...");
+
   const { data, error } = await supabaseClient.auth.signUp({
     email: email.value,
     password: password.value,
   });
-  if (error) return alert(error.message);
 
-  await supabaseClient.from("profiles").insert({
+  if (error) {
+    showStatus(error.message, true);
+    return;
+  }
+
+  const profileRes = await supabaseClient.from("profiles").insert({
     id: data.user.id,
     full_name: full_name.value,
     role: role.value,
     capital_range: capital.value,
     country: country.value,
   });
+
+  if (profileRes.error) {
+    showStatus("Profile save failed", true);
+    return;
+  }
+
+  showStatus("Account created successfully ✅");
+}
+
+  });
 };
 
-// ---------- SIGN IN ----------
-loginBtn.onclick = async () => {
+async function signIn() {
+  if (!email.value || !password.value) {
+    showStatus("Enter email and password", true);
+    return;
+  }
+
+  showStatus("Signing in...");
+
   const { error } = await supabaseClient.auth.signInWithPassword({
     email: email.value,
     password: password.value,
   });
-  if (error) alert(error.message);
+
+  if (error) {
+    showStatus(error.message, true);
+  }
+}
+
 };
 
 // ---------- PROFILE ----------
@@ -159,26 +190,41 @@ async function loadProfile() {
   profileRole.textContent = data.role;
   profileCapital.textContent = data.capital_range;
   profileCountry.textContent = data.country;
+  <hr class="my-6" />
+
 }
 
 // ---------- PROJECTS ----------
-postProjectBtn.onclick = async () => {
+async function createProject() {
+  if (!project_title.value || !project_description.value) {
+    showStatus("Project title & description required", true);
+    return;
+  }
+
+  showStatus("Posting project...");
+
   const { data: { user } } = await supabaseClient.auth.getUser();
-  if (!user) return alert("Not logged in");
 
   const { error } = await supabaseClient.from("projects").insert({
     owner_id: user.id,
-    title: projectTitle.value,
-    description: projectDescription.value,
-    capital_needed: projectCapital.value,
+    title: project_title.value,
+    description: project_description.value,
+    capital_needed: project_capital.value,
   });
 
-  if (error) return alert(error.message);
+  if (error) {
+    showStatus(error.message, true);
+    return;
+  }
 
-  projectTitle.value = "";
-  projectDescription.value = "";
-  projectCapital.value = "";
+  project_title.value = "";
+  project_description.value = "";
+  project_capital.value = "";
+
+  showStatus("Project posted successfully 🚀");
   loadProjects();
+}
+
 };
 
 async function loadProjects() {
@@ -195,6 +241,10 @@ async function loadProjects() {
         <p>${p.description}</p>
         <p class="font-semibold mt-2">${p.capital_needed}</p>
       </div>`;
+    <h2 class="text-3xl font-bold mb-1">
+  Welcome, <span id="profile-name"></span> 👋
+</h2>
+
   });
 }
 
@@ -214,7 +264,25 @@ function showAuth() {
 logoutBtn.onclick = async () => {
   await supabaseClient.auth.signOut();
 };
+  function showStatus(message, isError = false) {
+  const el = document.getElementById("status");
+  el.textContent = message;
+  el.classList.remove("hidden");
+
+  el.className =
+    "fixed bottom-4 right-4 px-4 py-2 rounded shadow " +
+    (isError
+      ? "bg-red-100 border border-red-400 text-red-800"
+      : "bg-blue-100 border border-blue-400 text-blue-800");
+
+  setTimeout(() => el.classList.add("hidden"), 3000);
+}
+
 </script>
+  
+<div id="status"
+  class="fixed bottom-4 right-4 hidden bg-blue-100 border border-blue-400 text-blue-800 px-4 py-2 rounded shadow">
+</div>
 
 </body>
 </html>
