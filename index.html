@@ -13,7 +13,9 @@
 <header class="border-b bg-white">
   <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
     <h1 class="text-2xl font-bold text-blue-600">Africa Startup Connect</h1>
-    <button id="logoutBtn" class="hidden border px-4 py-2 rounded">Log Out</button>
+    <button id="logoutBtn" class="hidden border px-4 py-2 rounded">
+      Log Out
+    </button>
   </div>
 </header>
 
@@ -51,6 +53,7 @@
 
 <!-- DASHBOARD -->
 <section id="dashboard" class="hidden max-w-6xl mx-auto py-16 px-6">
+
   <h2 class="text-3xl font-bold mb-2">
     Welcome, <span id="profileName"></span> 👋
   </h2>
@@ -61,36 +64,39 @@
     Country: <span id="profileCountry"></span>
   </p>
 
-  <hr class="my-6" />
   <!-- ENTREPRENEUR -->
-<section id="entrepreneurSection" class="hidden"></section>
+  <div id="entrepreneurSection" class="hidden">
+    <h3 class="text-2xl font-bold mb-4">My Projects</h3>
 
-<!-- INVESTOR -->
-<section id="investorSection" class="hidden"></section>
+    <div class="bg-white p-6 rounded-xl shadow mb-6">
+      <h4 class="font-bold mb-3">Post a Business Project</h4>
 
-<!-- PARTNER -->
-<section id="partnerSection" class="hidden"></section>
+      <input id="projectTitle" placeholder="Project Title" class="border p-3 rounded w-full mb-3" />
+      <textarea id="projectDescription" placeholder="Describe your business idea"
+        class="border p-3 rounded w-full mb-3"></textarea>
+      <input id="projectCapital" placeholder="Capital Needed"
+        class="border p-3 rounded w-full mb-3" />
 
+      <button id="postProjectBtn" class="bg-blue-600 text-white px-6 py-3 rounded">
+        Post Project
+      </button>
+    </div>
 
-  <!-- CREATE PROJECT -->
-  <div class="bg-white p-6 rounded-xl shadow mb-10">
-    <h3 class="text-xl font-bold mb-4">Post a Business Project</h3>
-
-    <input id="projectTitle" placeholder="Project Title" class="border p-3 rounded w-full mb-3" />
-    <textarea id="projectDescription" placeholder="Describe your business idea"
-      class="border p-3 rounded w-full mb-3"></textarea>
-    <input id="projectCapital" placeholder="Capital Needed" class="border p-3 rounded w-full mb-3" />
-
-    <button id="postProjectBtn" class="bg-blue-600 text-white px-6 py-3 rounded">
-      Post Project
-    </button>
+    <div id="myProjects" class="grid md:grid-cols-2 gap-6"></div>
   </div>
 
-  <!-- PROJECT LIST -->
-  <div>
-    <h3 class="text-2xl font-bold mb-4">All Projects</h3>
+  <!-- INVESTOR -->
+  <div id="investorSection" class="hidden">
+    <h3 class="text-2xl font-bold mb-4">Available Projects</h3>
     <div id="projectList" class="grid md:grid-cols-2 gap-6"></div>
   </div>
+
+  <!-- PARTNER -->
+  <div id="partnerSection" class="hidden">
+    <h3 class="text-2xl font-bold mb-4">Partner Dashboard</h3>
+    <p class="text-gray-600">Coming next (chat, tasks, equity)</p>
+  </div>
+
 </section>
 
 <!-- STATUS -->
@@ -106,15 +112,7 @@
 /* ================= SUPABASE ================= */
 const supabaseClient = supabase.createClient(
   "https://unyvcihnjlkanwfrnoop.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVueXZjaWhuamxrYW53ZnJub29wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NTg0NjYsImV4cCI6MjA4MTUzNDQ2Nn0.F_MApAFHM_OZPbQzpScUtyRtDvWjsHBBC4rmqyB6V-k",
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-      storage: localStorage
-    }
-  }
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVueXZjaWhuamxrYW53ZnJub29wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NTg0NjYsImV4cCI6MjA4MTUzNDQ2Nn0.F_MApAFHM_OZPbQzpScUtyRtDvWjsHBBC4rmqyB6V-k"
 );
 
 /* ================= STATUS ================= */
@@ -129,13 +127,7 @@ function showStatus(msg, error=false) {
 }
 
 /* ================= AUTH STATE ================= */
-supabaseClient.auth.onAuthStateChange((_, session) => {
-  session ? showDashboard() : showAuth();
-});
-
-/* ================= PAGE LOAD ================= */
-window.addEventListener("load", async () => {
-  const { data: { session } } = await supabaseClient.auth.getSession();
+supabaseClient.auth.onAuthStateChange((_event, session) => {
   session ? showDashboard() : showAuth();
 });
 
@@ -156,7 +148,7 @@ signupBtn.onclick = async () => {
     country: country.value
   });
 
-  showStatus("Account created successfully");
+  showStatus("Account created");
 };
 
 /* ================= SIGN IN ================= */
@@ -165,7 +157,6 @@ loginBtn.onclick = async () => {
     email: email.value,
     password: password.value
   });
-
   if (error) showStatus(error.message, true);
 };
 
@@ -175,7 +166,6 @@ function showDashboard() {
   dashboard.classList.remove("hidden");
   logoutBtn.classList.remove("hidden");
   loadProfile();
-  loadProjects();
 }
 
 function showAuth() {
@@ -199,6 +189,24 @@ async function loadProfile() {
   profileRole.textContent = data.role;
   profileCapital.textContent = data.capital_range;
   profileCountry.textContent = data.country;
+
+  entrepreneurSection.classList.add("hidden");
+  investorSection.classList.add("hidden");
+  partnerSection.classList.add("hidden");
+
+  if (data.role === "entrepreneur") {
+    entrepreneurSection.classList.remove("hidden");
+    loadMyProjects(user.id);
+  }
+
+  if (data.role === "investor") {
+    investorSection.classList.remove("hidden");
+    loadAllProjects();
+  }
+
+  if (data.role === "partner") {
+    partnerSection.classList.remove("hidden");
+  }
 }
 
 /* ================= PROJECTS ================= */
@@ -219,10 +227,35 @@ postProjectBtn.onclick = async () => {
   projectCapital.value = "";
 
   showStatus("Project posted");
-  loadProjects();
+  loadMyProjects(user.id);
 };
 
-async function loadProjects() {
+async function loadMyProjects(userId) {
+  const { data } = await supabaseClient
+    .from("projects")
+    .select("*")
+    .eq("owner_id", userId)
+    .order("created_at", { ascending: false });
+
+  myProjects.innerHTML = "";
+
+  if (!data || data.length === 0) {
+    myProjects.innerHTML = "<p>No projects yet</p>";
+    return;
+  }
+
+  data.forEach(p => {
+    myProjects.innerHTML += `
+      <div class="bg-white p-5 rounded-xl shadow">
+        <h4 class="font-bold">${p.title}</h4>
+        <p class="text-gray-600">${p.description}</p>
+        <p class="mt-2 font-semibold">${p.capital_needed}</p>
+      </div>
+    `;
+  });
+}
+
+async function loadAllProjects() {
   const { data } = await supabaseClient
     .from("projects")
     .select("*")
@@ -232,10 +265,10 @@ async function loadProjects() {
 
   data.forEach(p => {
     projectList.innerHTML += `
-      <div class="bg-white p-6 rounded-xl shadow">
-        <h4 class="font-bold text-lg">${p.title}</h4>
-        <p class="text-gray-600 mb-2">${p.description}</p>
-        <p class="font-semibold">Capital Needed: ${p.capital_needed}</p>
+      <div class="bg-white p-5 rounded-xl shadow">
+        <h4 class="font-bold">${p.title}</h4>
+        <p>${p.description}</p>
+        <p class="mt-2 font-semibold">${p.capital_needed}</p>
       </div>
     `;
   });
@@ -249,3 +282,4 @@ logoutBtn.onclick = async () => {
 
 </body>
 </html>
+
