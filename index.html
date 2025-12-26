@@ -2,216 +2,792 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Africa Startup Connect</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Africa Startup Connect - Connect with entrepreneurs, investors, and partners across Africa" />
+  <title>Africa Startup Connect</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .fade-in {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
 <!-- HEADER -->
-<header class="border-b bg-white">
+<header class="border-b bg-white shadow-sm sticky top-0 z-10">
   <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-    <h1 class="text-2xl font-bold text-blue-600">Africa Startup Connect</h1>
-    <button id="logoutBtn" class="hidden border px-4 py-2 rounded">Log Out</button>
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-blue-600">Africa Startup Connect</h1>
+    </div>
+    <button id="logoutBtn" class="hidden border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+      </svg>
+      Log Out
+    </button>
   </div>
 </header>
 
-<!-- AUTH -->
-<section id="auth" class="max-w-md mx-auto py-20 px-6">
-  <h3 class="text-2xl font-bold mb-6 text-center">Create / Login Account</h3>
+<!-- MAIN CONTENT -->
+<main class="flex-grow">
+  
+<!-- AUTH SECTION -->
+<section id="auth" class="max-w-md mx-auto py-16 px-6 fade-in">
+  <div class="bg-white rounded-2xl shadow-lg p-8">
+    <div class="text-center mb-8">
+      <h3 class="text-2xl font-bold mb-2">Welcome Back</h3>
+      <p class="text-gray-600">Create an account or login to continue</p>
+    </div>
 
-  <input id="full_name" placeholder="Full Name" class="border p-3 rounded w-full mb-3" />
-  <input id="email" type="email" placeholder="Email" class="border p-3 rounded w-full mb-3" />
-  <input id="password" type="password" placeholder="Password" class="border p-3 rounded w-full mb-3" />
+    <!-- Tab Switcher -->
+    <div class="flex mb-6 bg-gray-100 rounded-lg p-1">
+      <button id="tabLogin" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 bg-white shadow text-gray-800">
+        Log In
+      </button>
+      <button id="tabSignup" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 text-gray-600 hover:text-gray-800">
+        Sign Up
+      </button>
+    </div>
 
-  <select id="role" class="border p-3 rounded w-full mb-3">
-    <option value="">Select Role</option>
-    <option value="entrepreneur">Entrepreneur</option>
-    <option value="investor">Investor</option>
-    <option value="partner">Partner</option>
-  </select>
+    <!-- Auth Form -->
+    <form id="authForm" class="space-y-4">
+      <div id="fullNameGroup" class="hidden">
+        <label for="full_name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+        <input id="full_name" type="text" placeholder="Enter your full name" 
+               class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+               autocomplete="name" />
+        <p id="fullNameError" class="text-red-500 text-sm mt-1 hidden"></p>
+      </div>
 
-  <button id="signupBtn" class="bg-blue-600 text-white w-full py-3 rounded mb-2">Sign Up</button>
-  <button id="loginBtn" class="border w-full py-3 rounded">Log In</button>
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+        <input id="email" type="email" placeholder="Enter your email" 
+               class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+               autocomplete="email" />
+        <p id="emailError" class="text-red-500 text-sm mt-1 hidden"></p>
+      </div>
+
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+        <div class="relative">
+          <input id="password" type="password" placeholder="Enter your password" 
+                 class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 pr-10"
+                 autocomplete="new-password" />
+          <button type="button" id="togglePassword" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+          </button>
+        </div>
+        <p id="passwordError" class="text-red-500 text-sm mt-1 hidden"></p>
+        <div id="passwordStrength" class="mt-2 hidden">
+          <div class="h-1 bg-gray-200 rounded-full overflow-hidden">
+            <div id="passwordStrengthBar" class="h-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <p id="passwordStrengthText" class="text-xs mt-1"></p>
+        </div>
+      </div>
+
+      <div id="roleGroup" class="hidden">
+        <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Select Your Role</label>
+        <select id="role" class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white">
+          <option value="">Choose a role...</option>
+          <option value="entrepreneur">Entrepreneur</option>
+          <option value="investor">Investor</option>
+          <option value="partner">Partner</option>
+        </select>
+        <p id="roleError" class="text-red-500 text-sm mt-1 hidden"></p>
+      </div>
+
+      <button id="submitBtn" type="submit" class="bg-blue-600 text-white w-full py-3 rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+        <span id="submitText">Log In</span>
+        <svg id="submitSpinner" class="w-5 h-5 animate-spin hidden" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </button>
+    </form>
+
+    <p id="authMessage" class="text-center text-sm text-gray-600 mt-4"></p>
+  </div>
 </section>
 
-<!-- DASHBOARD -->
-<section id="dashboard" class="hidden max-w-6xl mx-auto py-10 px-6">
-  <h2 class="text-3xl font-bold mb-2">Welcome, <span id="profileName"></span></h2>
-  <p class="mb-6 text-gray-600">Role: <span id="profileRole"></span></p>
-
-  <!-- ENTREPRENEUR -->
-  <div id="entrepreneurSection" class="hidden">
-    <h3 class="text-xl font-bold mb-3">My Projects</h3>
-
-    <input id="projectTitle" placeholder="Project Title" class="border p-3 rounded w-full mb-2">
-    <textarea id="projectDescription" placeholder="Description" class="border p-3 rounded w-full mb-2"></textarea>
-    <input id="projectCapital" placeholder="Capital Needed" class="border p-3 rounded w-full mb-2">
-
-    <button id="postProjectBtn" class="bg-blue-600 text-white px-4 py-2 rounded">Post Project</button>
-
-    <div id="myProjects" class="mt-6 grid gap-4"></div>
+<!-- DASHBOARD SECTION -->
+<section id="dashboard" class="hidden max-w-6xl mx-auto py-12 px-6 fade-in">
+  
+  <!-- Welcome Header -->
+  <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-8 text-white mb-8">
+    <h2 class="text-3xl font-bold mb-2">
+      Welcome back, <span id="profileName" class="text-yellow-300"></span>
+    </h2>
+    <p class="text-blue-100 flex items-center gap-2">
+      <span id="profileRole" class="bg-white/20 px-3 py-1 rounded-full text-sm font-medium"></span>
+    </p>
   </div>
 
-  <!-- INVESTOR -->
-  <div id="investorSection" class="hidden">
-    <h3 class="text-xl font-bold mb-3">Available Projects</h3>
-    <div id="projectList" class="grid gap-4"></div>
+  <!-- Role-Specific Content -->
+  <div id="roleContent" class="grid gap-6">
+    
+    <!-- Entrepreneur Dashboard -->
+    <div id="entrepreneurSection" class="hidden bg-white rounded-xl shadow-lg p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold text-gray-800">Entrepreneur Dashboard</h3>
+          <p class="text-gray-600">Create and manage your projects</p>
+        </div>
+      </div>
+      <div class="border-t pt-4">
+        <button class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Create New Project
+        </button>
+      </div>
+    </div>
+
+    <!-- Investor Dashboard -->
+    <div id="investorSection" class="hidden bg-white rounded-xl shadow-lg p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold text-gray-800">Investor Dashboard</h3>
+          <p class="text-gray-600">Discover and invest in promising projects</p>
+        </div>
+      </div>
+      <div class="border-t pt-4">
+        <div class="grid gap-4 sm:grid-cols-3">
+          <div class="bg-purple-50 rounded-lg p-4 text-center">
+            <p class="text-2xl font-bold text-purple-600">$0</p>
+            <p class="text-sm text-gray-600">Total Invested</p>
+          </div>
+          <div class="bg-purple-50 rounded-lg p-4 text-center">
+            <p class="text-2xl font-bold text-purple-600">0</p>
+            <p class="text-sm text-gray-600">Projects Funded</p>
+          </div>
+          <div class="bg-purple-50 rounded-lg p-4 text-center">
+            <p class="text-2xl font-bold text-purple-600">0</p>
+            <p class="text-sm text-gray-600">Active Deals</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Partner Dashboard -->
+    <div id="partnerSection" class="hidden bg-white rounded-xl shadow-lg p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold text-gray-800">Partner Dashboard</h3>
+          <p class="text-gray-600">Join projects with your skills</p>
+        </div>
+      </div>
+      <div class="border-t pt-4">
+        <div class="space-y-3">
+          <div class="flex items-center justify-between p-4 bg-orange-50 rounded-lg">
+            <div>
+              <p class="font-medium text-gray-800">Available Opportunities</p>
+              <p class="text-sm text-gray-600">3 new projects need your expertise</p>
+            </div>
+            <button class="text-orange-600 hover:text-orange-700 font-medium text-sm">View All →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- PARTNER -->
-  <div id="partnerSection" class="hidden">
-    <h3 class="text-xl font-bold mb-3">Projects to Join</h3>
-    <div id="partnerProjects" class="grid gap-4"></div>
-  </div>
 </section>
 
-<div id="status" class="fixed bottom-4 right-4 px-4 py-2 rounded hidden"></div>
+</main>
 
+<!-- FOOTER -->
+<footer class="bg-white border-t mt-auto">
+  <div class="max-w-7xl mx-auto px-6 py-6 text-center text-gray-600 text-sm">
+    <p>© 2025 Africa Startup Connect. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- STATUS NOTIFICATION -->
+<div id="status" class="fixed bottom-4 right-4 hidden px-6 py-3 rounded-lg shadow-lg fade-in z-50"></div>
+
+<!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-const supabase = supabase.createClient(
-  "https://unyvcihnjlkanwfrnoop.supabase.co",
- "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVueXZjaWhuamxrYW53ZnJub29wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NTg0NjYsImV4cCI6MjA4MTUzNDQ2Nn0.F_MApAFHM_OZPbQzpScUtyRtDvWjsHBBC4rmqyB6V-k"
-);
+/**
+ * Africa Startup Connect - Application Logic
+ * Version: 2.0.0
+ */
 
-// ---------- UI HELPERS ----------
-function showStatus(msg, error=false){
-  const s = document.getElementById("status");
-  s.textContent = msg;
-  s.className = "fixed bottom-4 right-4 px-4 py-2 rounded " + (error ? "bg-red-200" : "bg-green-200");
-  s.classList.remove("hidden");
-  setTimeout(()=>s.classList.add("hidden"), 3000);
+// ============================================================================
+// CONFIGURATION
+// ============================================================================
+
+// IMPORTANT: Replace these with your actual Supabase credentials
+const SUPABASE_CONFIG = {
+  url: "https://unyvcihnjlkanwfrnoop.supabase.co",
+  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVueXZjaWhuamxrYW53ZnJub29wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NTg0NjYsImV4cCI6MjA4MTUzNDQ2Nn0.F_MApAFHM_OZPbQzpScUtyRtDvWjsHBBC4rmqyB6V-k"
+};
+
+// Initialize Supabase client
+const supabase = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+
+// Application state
+const AppState = {
+  isLoginMode: true,
+  isSubmitting: false
+};
+
+// ============================================================================
+// DOM ELEMENT REFERENCES
+// ============================================================================
+
+const elements = {
+  // Sections
+  auth: document.getElementById('auth'),
+  dashboard: document.getElementById('dashboard'),
+  logoutBtn: document.getElementById('logoutBtn'),
+  status: document.getElementById('status'),
+  
+  // Form elements
+  authForm: document.getElementById('authForm'),
+  fullNameGroup: document.getElementById('fullNameGroup'),
+  full_name: document.getElementById('full_name'),
+  fullNameError: document.getElementById('fullNameError'),
+  email: document.getElementById('email'),
+  emailError: document.getElementById('emailError'),
+  password: document.getElementById('password'),
+  passwordError: document.getElementById('passwordError'),
+  passwordStrength: document.getElementById('passwordStrength'),
+  passwordStrengthBar: document.getElementById('passwordStrengthBar'),
+  passwordStrengthText: document.getElementById('passwordStrengthText'),
+  togglePassword: document.getElementById('togglePassword'),
+  roleGroup: document.getElementById('roleGroup'),
+  role: document.getElementById('role'),
+  roleError: document.getElementById('roleError'),
+  
+  // Buttons
+  tabLogin: document.getElementById('tabLogin'),
+  tabSignup: document.getElementById('tabSignup'),
+  submitBtn: document.getElementById('submitBtn'),
+  submitText: document.getElementById('submitText'),
+  submitSpinner: document.getElementById('submitSpinner'),
+  
+  // Dashboard elements
+  profileName: document.getElementById('profileName'),
+  profileRole: document.getElementById('profileRole'),
+  entrepreneurSection: document.getElementById('entrepreneurSection'),
+  investorSection: document.getElementById('investorSection'),
+  partnerSection: document.getElementById('partnerSection'),
+  
+  // Messages
+  authMessage: document.getElementById('authMessage')
+};
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+/**
+ * Display a status notification to the user
+ * @param {string} message - The message to display
+ * @param {boolean} isError - Whether this is an error message
+ * @param {number} duration - How long to show the message (in ms)
+ */
+function showStatus(message, isError = false, duration = 4000) {
+  const el = elements.status;
+  el.textContent = message;
+  el.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg fade-in z-50 ${
+    isError 
+      ? 'bg-red-100 text-red-800 border border-red-200' 
+      : 'bg-green-100 text-green-800 border border-green-200'
+  }`;
+  el.classList.remove('hidden');
+  
+  // Clear any existing timeout
+  if (el._timeout) clearTimeout(el._timeout);
+  
+  el._timeout = setTimeout(() => {
+    el.classList.add('hidden');
+  }, duration);
 }
 
-// ---------- AUTH ----------
-signupBtn.onclick = async () => {
-  const { data, error } = await supabase.auth.signUp({
-    email: email.value,
-    password: password.value
+/**
+ * Toggle between login and signup modes
+ * @param {boolean} isLogin - Whether to show login mode
+ */
+function setAuthMode(isLogin) {
+  AppState.isLoginMode = isLogin;
+  
+  // Update tab styling
+  if (isLogin) {
+    elements.tabLogin.className = 'flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 bg-white shadow text-gray-800';
+    elements.tabSignup.className = 'flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 text-gray-600 hover:text-gray-800';
+    elements.fullNameGroup.classList.add('hidden');
+    elements.roleGroup.classList.add('hidden');
+    elements.submitText.textContent = 'Log In';
+    elements.authMessage.innerHTML = 'New here? <a href="#" id="switchToSignup" class="text-blue-600 hover:underline">Create an account</a>';
+  } else {
+    elements.tabSignup.className = 'flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 bg-white shadow text-gray-800';
+    elements.tabLogin.className = 'flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 text-gray-600 hover:text-gray-800';
+    elements.fullNameGroup.classList.remove('hidden');
+    elements.roleGroup.classList.remove('hidden');
+    elements.submitText.textContent = 'Create Account';
+    elements.authMessage.innerHTML = 'Already have an account? <a href="#" id="switchToLogin" class="text-blue-600 hover:underline">Log in</a>';
+  }
+  
+  // Attach event listeners to dynamically created links
+  setTimeout(() => {
+    const signupLink = document.getElementById('switchToSignup');
+    const loginLink = document.getElementById('switchToLogin');
+    if (signupLink) signupLink.addEventListener('click', (e) => { e.preventDefault(); setAuthMode(false); });
+    if (loginLink) loginLink.addEventListener('click', (e) => { e.preventDefault(); setAuthMode(true); });
+  }, 0);
+  
+  // Clear form errors
+  clearErrors();
+}
+
+/**
+ * Clear all form error messages
+ */
+function clearErrors() {
+  const errorElements = ['fullNameError', 'emailError', 'passwordError', 'roleError'];
+  errorElements.forEach(id => {
+    const el = elements[id];
+    el.textContent = '';
+    el.classList.add('hidden');
   });
+  elements.passwordStrength.classList.add('hidden');
+}
 
-  if(error) return showStatus(error.message, true);
+/**
+ * Show a specific form error
+ * @param {HTMLElement} element - The error element
+ * @param {string} message - The error message
+ */
+function showError(element, message) {
+  element.textContent = message;
+  element.classList.remove('hidden');
+}
 
-  await supabase.from("profiles").insert({
-    id: data.user.id,
-    full_name: full_name.value,
-    role: role.value
+/**
+ * Toggle loading state on submit button
+ * @param {boolean} isLoading - Whether to show loading state
+ */
+function setLoading(isLoading) {
+  AppState.isSubmitting = isLoading;
+  elements.submitBtn.disabled = isLoading;
+  
+  if (isLoading) {
+    elements.submitText.textContent = AppState.isLoginMode ? 'Logging in...' : 'Creating account...';
+    elements.submitSpinner.classList.remove('hidden');
+  } else {
+    elements.submitText.textContent = AppState.isLoginMode ? 'Log In' : 'Create Account';
+    elements.submitSpinner.classList.add('hidden');
+  }
+}
+
+/**
+ * Calculate password strength
+ * @param {string} password - The password to check
+ * @returns {object} Strength info including score and feedback
+ */
+function calculatePasswordStrength(password) {
+  if (!password) return { score: 0, text: '', color: '' };
+  
+  let score = 0;
+  const checks = [
+    { test: password.length >= 8, points: 1 },
+    { test: password.length >= 12, points: 1 },
+    { test: /[a-z]/.test(password), points: 1 },
+    { test: /[A-Z]/.test(password), points: 1 },
+    { test: /[0-9]/.test(password), points: 1 },
+    { test: /[^a-zA-Z0-9]/.test(password), points: 1 }
+  ];
+  
+  checks.forEach(check => { if (check.test) score += check.points; });
+  
+  const strengthLabels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
+  const strengthColors = ['bg-red-500', 'bg-red-400', 'bg-yellow-500', 'bg-yellow-400', 'bg-green-400', 'bg-green-500'];
+  
+  return {
+    score,
+    text: strengthLabels[score - 1] || '',
+    color: strengthColors[score - 1] || 'bg-gray-500',
+    percentage: Math.min((score / 6) * 100, 100)
+  };
+}
+
+/**
+ * Validate form inputs
+ * @returns {object} Validation result with isValid and errors
+ */
+function validateForm() {
+  const errors = {};
+  let isValid = true;
+  
+  // Validate full name (only for signup)
+  if (!AppState.isLoginMode) {
+    const fullName = elements.full_name.value.trim();
+    if (!fullName) {
+      errors.fullName = 'Full name is required';
+      isValid = false;
+    } else if (fullName.length < 2) {
+      errors.fullName = 'Full name must be at least 2 characters';
+      isValid = false;
+    } else if (fullName.length > 100) {
+      errors.fullName = 'Full name must be less than 100 characters';
+      isValid = false;
+    }
+  }
+  
+  // Validate email
+  const email = elements.email.value.trim();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email) {
+    errors.email = 'Email is required';
+    isValid = false;
+  } else if (!emailRegex.test(email)) {
+    errors.email = 'Please enter a valid email address';
+    isValid = false;
+  }
+  
+  // Validate password
+  const password = elements.password.value;
+  if (!password) {
+    errors.password = 'Password is required';
+    isValid = false;
+  } else if (password.length < 8) {
+    errors.password = 'Password must be at least 8 characters';
+    isValid = false;
+  }
+  
+  // Validate role (only for signup)
+  if (!AppState.isLoginMode) {
+    const role = elements.role.value;
+    if (!role) {
+      errors.role = 'Please select a role';
+      isValid = false;
+    }
+  }
+  
+  return { isValid, errors };
+}
+
+/**
+ * Show the authentication section
+ */
+function showAuth() {
+  elements.auth.classList.remove('hidden');
+  elements.dashboard.classList.add('hidden');
+  elements.logoutBtn.classList.add('hidden');
+  // Clear form
+  elements.authForm.reset();
+  clearErrors();
+}
+
+/**
+ * Show the dashboard section and handle role-specific content
+ * @param {object} userProfile - The user's profile data
+ */
+function showDashboard(userProfile) {
+  elements.auth.classList.add('hidden');
+  elements.dashboard.classList.remove('hidden');
+  elements.logoutBtn.classList.remove('hidden');
+  
+  // Update profile information
+  elements.profileName.textContent = userProfile.full_name || 'User';
+  elements.profileRole.textContent = formatRole(userProfile.role);
+  
+  // Hide all role sections first
+  const roleSections = [
+    elements.entrepreneurSection,
+    elements.investorSection,
+    elements.partnerSection
+  ];
+  roleSections.forEach(section => section.classList.add('hidden'));
+  
+  // Show appropriate section based on role
+  const roleSectionMap = {
+    'entrepreneur': elements.entrepreneurSection,
+    'investor': elements.investorSection,
+    'partner': elements.partnerSection
+  };
+  
+  const sectionToShow = roleSectionMap[userProfile.role];
+  if (sectionToShow) {
+    sectionToShow.classList.remove('hidden');
+  }
+}
+
+/**
+ * Format role for display
+ * @param {string} role - The role key
+ * @returns {string} Formatted role text
+ */
+function formatRole(role) {
+  const roleLabels = {
+    'entrepreneur': '👨‍💼 Entrepreneur',
+    'investor': '💰 Investor',
+    'partner': '🤝 Partner'
+  };
+  return roleLabels[role] || role;
+}
+
+// ============================================================================
+// AUTHENTICATION HANDLERS
+// ============================================================================
+
+/**
+ * Handle signup form submission
+ */
+async function handleSignup() {
+  setLoading(true);
+  clearErrors();
+  
+  try {
+    // Create user account
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: elements.email.value.trim(),
+      password: elements.password.value
+    });
+    
+    if (authError) {
+      showError(elements.emailError, authError.message);
+      showStatus(authError.message, true);
+      setLoading(false);
+      return;
+    }
+    
+    // Create user profile
+    const { error: profileError } = await supabase.from('profiles').insert({
+      id: authData.user.id,
+      full_name: elements.full_name.value.trim(),
+      role: elements.role.value,
+      created_at: new Date().toISOString()
+    });
+    
+    if (profileError) {
+      // If profile creation fails, attempt to delete the auth user
+      console.error('Profile creation failed:', profileError);
+      showStatus('Account created but profile setup failed. Please contact support.', true);
+    } else {
+      showStatus('Account created successfully! Please check your email to verify.', false);
+      // Switch to login mode
+      setAuthMode(true);
+    }
+    
+  } catch (error) {
+    console.error('Signup error:', error);
+    showStatus('An unexpected error occurred. Please try again.', true);
+  }
+  
+  setLoading(false);
+}
+
+/**
+ * Handle login form submission
+ */
+async function handleLogin() {
+  setLoading(true);
+  clearErrors();
+  
+  try {
+    const { error } = await supabase.auth.signInWithPassword({
+      email: elements.email.value.trim(),
+      password: elements.password.value
+    });
+    
+    if (error) {
+      showError(elements.passwordError, error.message);
+      showStatus(error.message, true);
+      setLoading(false);
+      return;
+    }
+    
+    // Success - the onAuthStateChange handler will update the UI
+    
+  } catch (error) {
+    console.error('Login error:', error);
+    showStatus('An unexpected error occurred. Please try again.', true);
+  }
+  
+  setLoading(false);
+}
+
+/**
+ * Handle logout
+ */
+async function handleLogout() {
+  try {
+    await supabase.auth.signOut();
+    showAuth();
+    showStatus('You have been logged out.', false);
+  } catch (error) {
+    console.error('Logout error:', error);
+    showStatus('Error logging out. Please try again.', true);
+  }
+}
+
+// ============================================================================
+// EVENT LISTENERS
+// ============================================================================
+
+function initEventListeners() {
+  // Form submission
+  elements.authForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const validation = validateForm();
+    if (!validation.isValid) {
+      // Show first error
+      const firstError = Object.entries(validation.errors)[0];
+      const [field, message] = firstError;
+      const errorElement = elements[field + 'Error'];
+      if (errorElement) showError(errorElement, message);
+      return;
+    }
+    
+    if (AppState.isLoginMode) {
+      await handleLogin();
+    } else {
+      await handleSignup();
+    }
   });
-
-  showStatus("Account created");
-};
-
-loginBtn.onclick = async () => {
-  const { error } = await supabase.auth.signInWithPassword({
-    email: email.value,
-    password: password.value
+  
+  // Tab switching
+  elements.tabLogin.addEventListener('click', () => setAuthMode(true));
+  elements.tabSignup.addEventListener('click', () => setAuthMode(false));
+  
+  // Password visibility toggle
+  elements.togglePassword.addEventListener('click', () => {
+    const isPassword = elements.password.type === 'password';
+    elements.password.type = isPassword ? 'text' : 'password';
+    elements.togglePassword.innerHTML = isPassword 
+      ? `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+         </svg>`
+      : `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+         </svg>`;
   });
-  if(error) showStatus(error.message, true);
-};
+  
+  // Password strength indicator
+  elements.password.addEventListener('input', (e) => {
+    const strength = calculatePasswordStrength(e.target.value);
+    
+    if (e.target.value) {
+      elements.passwordStrength.classList.remove('hidden');
+      elements.passwordStrengthBar.style.width = `${strength.percentage}%`;
+      elements.passwordStrengthBar.className = `h-full transition-all duration-300 ${strength.color}`;
+      elements.passwordStrengthText.textContent = strength.text;
+      elements.passwordStrengthText.className = `text-xs mt-1 ${
+        strength.score <= 2 ? 'text-red-500' : strength.score <= 4 ? 'text-yellow-500' : 'text-green-500'
+      }`;
+    } else {
+      elements.passwordStrength.classList.add('hidden');
+    }
+  });
+  
+  // Logout button
+  elements.logoutBtn.addEventListener('click', handleLogout);
+}
 
-supabase.auth.onAuthStateChange((_, session)=>{
-  if(session) showDashboard();
-  else showAuth();
+// ============================================================================
+// AUTH STATE CHANGE HANDLER
+// ============================================================================
+
+supabase.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'SIGNED_OUT' || !session) {
+    showAuth();
+    return;
+  }
+  
+  try {
+    // Fetch user profile
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+    
+    if (error) {
+      console.error('Error fetching profile:', error);
+      // If profile doesn't exist, create one
+      if (error.code === 'PGRST116') {
+        showStatus('Profile not found. Please contact support.', true);
+      }
+    } else {
+      showDashboard(profile);
+    }
+  } catch (error) {
+    console.error('Auth state change error:', error);
+  }
 });
 
-// ---------- DASHBOARD ----------
-function showDashboard(){
-  auth.classList.add("hidden");
-  dashboard.classList.remove("hidden");
-  logoutBtn.classList.remove("hidden");
-  loadProfile();
-}
+// ============================================================================
+// INITIALIZATION
+// ============================================================================
 
-function showAuth(){
-  auth.classList.remove("hidden");
-  dashboard.classList.add("hidden");
-  logoutBtn.classList.add("hidden");
-}
-
-async function loadProfile(){
-  const { data:{user} } = await supabase.auth.getUser();
-  const { data } = await supabase.from("profiles").select("*").eq("id",user.id).single();
-
-  profileName.textContent = data.full_name;
-  profileRole.textContent = data.role;
-
-  entrepreneurSection.classList.add("hidden");
-  investorSection.classList.add("hidden");
-  partnerSection.classList.add("hidden");
-
-  if(data.role === "entrepreneur") {
-    entrepreneurSection.classList.remove("hidden");
-    loadMyProjects(user.id);
-  }
-  if(data.role === "investor") {
-    investorSection.classList.remove("hidden");
-    loadAllProjects();
-  }
-  if(data.role === "partner") {
-    partnerSection.classList.remove("hidden");
-    loadAllProjects();
-  }
-}
-
-// ---------- PROJECTS ----------
-postProjectBtn.onclick = async () => {
-  const { data:{user} } = await supabase.auth.getUser();
-  await supabase.from("projects").insert({
-    owner_id: user.id,
-    title: projectTitle.value,
-    description: projectDescription.value,
-    capital_needed: projectCapital.value
-  });
-  loadMyProjects(user.id);
-};
-
-async function loadMyProjects(uid){
-  const { data } = await supabase.from("projects").select("*").eq("owner_id", uid);
-  myProjects.innerHTML = "";
-  data.forEach(p=>{
-    myProjects.innerHTML += `
-      <div class="bg-white p-4 rounded shadow">
-        <h4 class="font-bold">${p.title}</h4>
-        <p>${p.description}</p>
-      </div>`;
+function init() {
+  initEventListeners();
+  setAuthMode(true); // Start in login mode
+  
+  // Check if user is already logged in
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session) {
+      supabase.auth.onAuthStateChange('INITIAL_SESSION', session);
+    }
   });
 }
 
-async function loadAllProjects(){
-  const { data } = await supabase.from("projects").select("*");
-  projectList.innerHTML = "";
-  data.forEach(p=>{
-    projectList.innerHTML += `
-      <div class="bg-white p-4 rounded shadow">
-        <h4 class="font-bold">${p.title}</h4>
-        <p>${p.description}</p>
-        <button onclick="joinProject('${p.id}')" class="mt-2 bg-blue-600 text-white px-3 py-1 rounded">
-          Join
-        </button>
-      </div>`;
-  });
-}
+// Start the application
+document.addEventListener('DOMContentLoaded', init);
 
-async function joinProject(projectId){
-  const { data:{user} } = await supabase.auth.getUser();
-  await supabase.from("project_interests").insert({
-    project_id: projectId,
-    user_id: user.id
-  });
-  showStatus("Joined project");
-}
-
-logoutBtn.onclick = async ()=>{
-  await supabase.auth.signOut();
-  showAuth();
-};
 </script>
 
 </body>
 </html>
+
 
 
 
