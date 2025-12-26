@@ -261,529 +261,97 @@
 // ============================================================================
 
 // IMPORTANT: Replace these with your actual Supabase credentials
-const SUPABASE_CONFIG = {
-  url: "https://unyvcihnjlkanwfrnoop.supabase.co",
-  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVueXZjaWhuamxrYW53ZnJub29wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NTg0NjYsImV4cCI6MjA4MTUzNDQ2Nn0.F_MApAFHM_OZPbQzpScUtyRtDvWjsHBBC4rmqyB6V-k"
-};
+<script>
+const supabase = supabase.createClient(
+  "https://YOUR_PROJECT_ID.supabase.co",
+  "YOUR_PUBLIC_ANON_KEY"
+);
 
-// Initialize Supabase client
-const supabase = supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+// DOM
+const auth = document.getElementById("auth");
+const dashboard = document.getElementById("dashboard");
+const logoutBtn = document.getElementById("logoutBtn");
 
-// Application state
-const AppState = {
-  isLoginMode: true,
-  isSubmitting: false
-};
+const profileName = document.getElementById("profileName");
+const profileRole = document.getElementById("profileRole");
 
-// ============================================================================
-// DOM ELEMENT REFERENCES
-// ============================================================================
+const entrepreneurSection = document.getElementById("entrepreneurSection");
+const investorSection = document.getElementById("investorSection");
+const partnerSection = document.getElementById("partnerSection");
 
-const elements = {
-  // Sections
-  auth: document.getElementById('auth'),
-  dashboard: document.getElementById('dashboard'),
-  logoutBtn: document.getElementById('logoutBtn'),
-  status: document.getElementById('status'),
-  
-  // Form elements
-  authForm: document.getElementById('authForm'),
-  fullNameGroup: document.getElementById('fullNameGroup'),
-  full_name: document.getElementById('full_name'),
-  fullNameError: document.getElementById('fullNameError'),
-  email: document.getElementById('email'),
-  emailError: document.getElementById('emailError'),
-  password: document.getElementById('password'),
-  passwordError: document.getElementById('passwordError'),
-  passwordStrength: document.getElementById('passwordStrength'),
-  passwordStrengthBar: document.getElementById('passwordStrengthBar'),
-  passwordStrengthText: document.getElementById('passwordStrengthText'),
-  togglePassword: document.getElementById('togglePassword'),
-  roleGroup: document.getElementById('roleGroup'),
-  role: document.getElementById('role'),
-  roleError: document.getElementById('roleError'),
-  
-  // Buttons
-  tabLogin: document.getElementById('tabLogin'),
-  tabSignup: document.getElementById('tabSignup'),
-  submitBtn: document.getElementById('submitBtn'),
-  submitText: document.getElementById('submitText'),
-  submitSpinner: document.getElementById('submitSpinner'),
-  
-  // Dashboard elements
-  profileName: document.getElementById('profileName'),
-  profileRole: document.getElementById('profileRole'),
-  entrepreneurSection: document.getElementById('entrepreneurSection'),
-  investorSection: document.getElementById('investorSection'),
-  partnerSection: document.getElementById('partnerSection'),
-  
-  // Messages
-  authMessage: document.getElementById('authMessage')
-};
+// -------- AUTH HANDLERS --------
+async function showDashboard() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return showAuth();
 
-// ============================================================================
-// UTILITY FUNCTIONS
-// ============================================================================
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
 
-/**
- * Display a status notification to the user
- * @param {string} message - The message to display
- * @param {boolean} isError - Whether this is an error message
- * @param {number} duration - How long to show the message (in ms)
- */
-function showStatus(message, isError = false, duration = 4000) {
-  const el = elements.status;
-  el.textContent = message;
-  el.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg fade-in z-50 ${
-    isError 
-      ? 'bg-red-100 text-red-800 border border-red-200' 
-      : 'bg-green-100 text-green-800 border border-green-200'
-  }`;
-  el.classList.remove('hidden');
-  
-  // Clear any existing timeout
-  if (el._timeout) clearTimeout(el._timeout);
-  
-  el._timeout = setTimeout(() => {
-    el.classList.add('hidden');
-  }, duration);
-}
-
-/**
- * Toggle between login and signup modes
- * @param {boolean} isLogin - Whether to show login mode
- */
-function setAuthMode(isLogin) {
-  AppState.isLoginMode = isLogin;
-  
-  // Update tab styling
-  if (isLogin) {
-    elements.tabLogin.className = 'flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 bg-white shadow text-gray-800';
-    elements.tabSignup.className = 'flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 text-gray-600 hover:text-gray-800';
-    elements.fullNameGroup.classList.add('hidden');
-    elements.roleGroup.classList.add('hidden');
-    elements.submitText.textContent = 'Log In';
-    elements.authMessage.innerHTML = 'New here? <a href="#" id="switchToSignup" class="text-blue-600 hover:underline">Create an account</a>';
-  } else {
-    elements.tabSignup.className = 'flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 bg-white shadow text-gray-800';
-    elements.tabLogin.className = 'flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 text-gray-600 hover:text-gray-800';
-    elements.fullNameGroup.classList.remove('hidden');
-    elements.roleGroup.classList.remove('hidden');
-    elements.submitText.textContent = 'Create Account';
-    elements.authMessage.innerHTML = 'Already have an account? <a href="#" id="switchToLogin" class="text-blue-600 hover:underline">Log in</a>';
-  }
-  
-  // Attach event listeners to dynamically created links
-  setTimeout(() => {
-    const signupLink = document.getElementById('switchToSignup');
-    const loginLink = document.getElementById('switchToLogin');
-    if (signupLink) signupLink.addEventListener('click', (e) => { e.preventDefault(); setAuthMode(false); });
-    if (loginLink) loginLink.addEventListener('click', (e) => { e.preventDefault(); setAuthMode(true); });
-  }, 0);
-  
-  // Clear form errors
-  clearErrors();
-}
-
-/**
- * Clear all form error messages
- */
-function clearErrors() {
-  const errorElements = ['fullNameError', 'emailError', 'passwordError', 'roleError'];
-  errorElements.forEach(id => {
-    const el = elements[id];
-    el.textContent = '';
-    el.classList.add('hidden');
-  });
-  elements.passwordStrength.classList.add('hidden');
-}
-
-/**
- * Show a specific form error
- * @param {HTMLElement} element - The error element
- * @param {string} message - The error message
- */
-function showError(element, message) {
-  element.textContent = message;
-  element.classList.remove('hidden');
-}
-
-/**
- * Toggle loading state on submit button
- * @param {boolean} isLoading - Whether to show loading state
- */
-function setLoading(isLoading) {
-  AppState.isSubmitting = isLoading;
-  elements.submitBtn.disabled = isLoading;
-  
-  if (isLoading) {
-    elements.submitText.textContent = AppState.isLoginMode ? 'Logging in...' : 'Creating account...';
-    elements.submitSpinner.classList.remove('hidden');
-  } else {
-    elements.submitText.textContent = AppState.isLoginMode ? 'Log In' : 'Create Account';
-    elements.submitSpinner.classList.add('hidden');
-  }
-}
-
-/**
- * Calculate password strength
- * @param {string} password - The password to check
- * @returns {object} Strength info including score and feedback
- */
-function calculatePasswordStrength(password) {
-  if (!password) return { score: 0, text: '', color: '' };
-  
-  let score = 0;
-  const checks = [
-    { test: password.length >= 8, points: 1 },
-    { test: password.length >= 12, points: 1 },
-    { test: /[a-z]/.test(password), points: 1 },
-    { test: /[A-Z]/.test(password), points: 1 },
-    { test: /[0-9]/.test(password), points: 1 },
-    { test: /[^a-zA-Z0-9]/.test(password), points: 1 }
-  ];
-  
-  checks.forEach(check => { if (check.test) score += check.points; });
-  
-  const strengthLabels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
-  const strengthColors = ['bg-red-500', 'bg-red-400', 'bg-yellow-500', 'bg-yellow-400', 'bg-green-400', 'bg-green-500'];
-  
-  return {
-    score,
-    text: strengthLabels[score - 1] || '',
-    color: strengthColors[score - 1] || 'bg-gray-500',
-    percentage: Math.min((score / 6) * 100, 100)
-  };
-}
-
-/**
- * Validate form inputs
- * @returns {object} Validation result with isValid and errors
- */
-function validateForm() {
-  const errors = {};
-  let isValid = true;
-  
-  // Validate full name (only for signup)
-  if (!AppState.isLoginMode) {
-    const fullName = elements.full_name.value.trim();
-    if (!fullName) {
-      errors.fullName = 'Full name is required';
-      isValid = false;
-    } else if (fullName.length < 2) {
-      errors.fullName = 'Full name must be at least 2 characters';
-      isValid = false;
-    } else if (fullName.length > 100) {
-      errors.fullName = 'Full name must be less than 100 characters';
-      isValid = false;
-    }
-  }
-  
-  // Validate email
-  const email = elements.email.value.trim();
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!email) {
-    errors.email = 'Email is required';
-    isValid = false;
-  } else if (!emailRegex.test(email)) {
-    errors.email = 'Please enter a valid email address';
-    isValid = false;
-  }
-  
-  // Validate password
-  const password = elements.password.value;
-  if (!password) {
-    errors.password = 'Password is required';
-    isValid = false;
-  } else if (password.length < 8) {
-    errors.password = 'Password must be at least 8 characters';
-    isValid = false;
-  }
-  
-  // Validate role (only for signup)
-  if (!AppState.isLoginMode) {
-    const role = elements.role.value;
-    if (!role) {
-      errors.role = 'Please select a role';
-      isValid = false;
-    }
-  }
-  
-  return { isValid, errors };
-}
-
-/**
- * Show the authentication section
- */
-function showAuth() {
-  elements.auth.classList.remove('hidden');
-  elements.dashboard.classList.add('hidden');
-  elements.logoutBtn.classList.add('hidden');
-  // Clear form
-  elements.authForm.reset();
-  clearErrors();
-}
-
-/**
- * Show the dashboard section and handle role-specific content
- * @param {object} userProfile - The user's profile data
- */
-function showDashboard(userProfile) {
-  elements.auth.classList.add('hidden');
-  elements.dashboard.classList.remove('hidden');
-  elements.logoutBtn.classList.remove('hidden');
-  
-  // Update profile information
-  elements.profileName.textContent = userProfile.full_name || 'User';
-  elements.profileRole.textContent = formatRole(userProfile.role);
-  
-  // Hide all role sections first
-  const roleSections = [
-    elements.entrepreneurSection,
-    elements.investorSection,
-    elements.partnerSection
-  ];
-  roleSections.forEach(section => section.classList.add('hidden'));
-  
-  // Show appropriate section based on role
-  const roleSectionMap = {
-    'entrepreneur': elements.entrepreneurSection,
-    'investor': elements.investorSection,
-    'partner': elements.partnerSection
-  };
-  
-  const sectionToShow = roleSectionMap[userProfile.role];
-  if (sectionToShow) {
-    sectionToShow.classList.remove('hidden');
-  }
-}
-
-/**
- * Format role for display
- * @param {string} role - The role key
- * @returns {string} Formatted role text
- */
-function formatRole(role) {
-  const roleLabels = {
-    'entrepreneur': '👨‍💼 Entrepreneur',
-    'investor': '💰 Investor',
-    'partner': '🤝 Partner'
-  };
-  return roleLabels[role] || role;
-}
-
-// ============================================================================
-// AUTHENTICATION HANDLERS
-// ============================================================================
-
-/**
- * Handle signup form submission
- */
-async function handleSignup() {
-  setLoading(true);
-  clearErrors();
-  
-  try {
-    // Create user account
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: elements.email.value.trim(),
-      password: elements.password.value
-    });
-    
-    if (authError) {
-      showError(elements.emailError, authError.message);
-      showStatus(authError.message, true);
-      setLoading(false);
-      return;
-    }
-    
-    // Create user profile
-    const { error: profileError } = await supabase.from('profiles').insert({
-      id: authData.user.id,
-      full_name: elements.full_name.value.trim(),
-      role: elements.role.value,
-      created_at: new Date().toISOString()
-    });
-    
-    if (profileError) {
-      // If profile creation fails, attempt to delete the auth user
-      console.error('Profile creation failed:', profileError);
-      showStatus('Account created but profile setup failed. Please contact support.', true);
-    } else {
-      showStatus('Account created successfully! Please check your email to verify.', false);
-      // Switch to login mode
-      setAuthMode(true);
-    }
-    
-  } catch (error) {
-    console.error('Signup error:', error);
-    showStatus('An unexpected error occurred. Please try again.', true);
-  }
-  
-  setLoading(false);
-}
-
-/**
- * Handle login form submission
- */
-async function handleLogin() {
-  setLoading(true);
-  clearErrors();
-  
-  try {
-    const { error } = await supabase.auth.signInWithPassword({
-      email: elements.email.value.trim(),
-      password: elements.password.value
-    });
-    
-    if (error) {
-      showError(elements.passwordError, error.message);
-      showStatus(error.message, true);
-      setLoading(false);
-      return;
-    }
-    
-    // Success - the onAuthStateChange handler will update the UI
-    
-  } catch (error) {
-    console.error('Login error:', error);
-    showStatus('An unexpected error occurred. Please try again.', true);
-  }
-  
-  setLoading(false);
-}
-
-/**
- * Handle logout
- */
-async function handleLogout() {
-  try {
-    await supabase.auth.signOut();
-    showAuth();
-    showStatus('You have been logged out.', false);
-  } catch (error) {
-    console.error('Logout error:', error);
-    showStatus('Error logging out. Please try again.', true);
-  }
-}
-
-// ============================================================================
-// EVENT LISTENERS
-// ============================================================================
-
-function initEventListeners() {
-  // Form submission
-  elements.authForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const validation = validateForm();
-    if (!validation.isValid) {
-      // Show first error
-      const firstError = Object.entries(validation.errors)[0];
-      const [field, message] = firstError;
-      const errorElement = elements[field + 'Error'];
-      if (errorElement) showError(errorElement, message);
-      return;
-    }
-    
-    if (AppState.isLoginMode) {
-      await handleLogin();
-    } else {
-      await handleSignup();
-    }
-  });
-  
-  // Tab switching
-  elements.tabLogin.addEventListener('click', () => setAuthMode(true));
-  elements.tabSignup.addEventListener('click', () => setAuthMode(false));
-  
-  // Password visibility toggle
-  elements.togglePassword.addEventListener('click', () => {
-    const isPassword = elements.password.type === 'password';
-    elements.password.type = isPassword ? 'text' : 'password';
-    elements.togglePassword.innerHTML = isPassword 
-      ? `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-         </svg>`
-      : `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-         </svg>`;
-  });
-  
-  // Password strength indicator
-  elements.password.addEventListener('input', (e) => {
-    const strength = calculatePasswordStrength(e.target.value);
-    
-    if (e.target.value) {
-      elements.passwordStrength.classList.remove('hidden');
-      elements.passwordStrengthBar.style.width = `${strength.percentage}%`;
-      elements.passwordStrengthBar.className = `h-full transition-all duration-300 ${strength.color}`;
-      elements.passwordStrengthText.textContent = strength.text;
-      elements.passwordStrengthText.className = `text-xs mt-1 ${
-        strength.score <= 2 ? 'text-red-500' : strength.score <= 4 ? 'text-yellow-500' : 'text-green-500'
-      }`;
-    } else {
-      elements.passwordStrength.classList.add('hidden');
-    }
-  });
-  
-  // Logout button
-  elements.logoutBtn.addEventListener('click', handleLogout);
-}
-
-// ============================================================================
-// AUTH STATE CHANGE HANDLER
-// ============================================================================
-
-supabase.auth.onAuthStateChange(async (event, session) => {
-  if (event === 'SIGNED_OUT' || !session) {
-    showAuth();
+  if (error) {
+    console.error(error);
     return;
   }
-  
-  try {
-    // Fetch user profile
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', session.user.id)
-      .single();
-    
-    if (error) {
-      console.error('Error fetching profile:', error);
-      // If profile doesn't exist, create one
-      if (error.code === 'PGRST116') {
-        showStatus('Profile not found. Please contact support.', true);
-      }
-    } else {
-      showDashboard(profile);
-    }
-  } catch (error) {
-    console.error('Auth state change error:', error);
-  }
-});
 
-// ============================================================================
-// INITIALIZATION
-// ============================================================================
+  auth.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+  logoutBtn.classList.remove("hidden");
 
-function init() {
-  initEventListeners();
-  setAuthMode(true); // Start in login mode
-  
-  // Check if user is already logged in
-  supabase.auth.getSession().then(({ data: { session } }) => {
-    if (session) {
-      supabase.auth.onAuthStateChange('INITIAL_SESSION', session);
-    }
+  profileName.textContent = profile.full_name;
+  profileRole.textContent = profile.role;
+
+  entrepreneurSection.classList.add("hidden");
+  investorSection.classList.add("hidden");
+  partnerSection.classList.add("hidden");
+
+  if (profile.role === "entrepreneur") entrepreneurSection.classList.remove("hidden");
+  if (profile.role === "investor") investorSection.classList.remove("hidden");
+  if (profile.role === "partner") partnerSection.classList.remove("hidden");
+}
+
+function showAuth() {
+  auth.classList.remove("hidden");
+  dashboard.classList.add("hidden");
+  logoutBtn.classList.add("hidden");
+}
+
+// LOGIN
+async function login(email, password) {
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) alert(error.message);
+}
+
+// SIGNUP
+async function signup(email, password, fullName, role) {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password
+  });
+
+  if (error) return alert(error.message);
+
+  await supabase.from("profiles").insert({
+    id: data.user.id,
+    full_name: fullName,
+    role
   });
 }
 
-// Start the application
-document.addEventListener('DOMContentLoaded', init);
+// LOGOUT
+logoutBtn.onclick = async () => {
+  await supabase.auth.signOut();
+  showAuth();
+};
 
+// SESSION WATCHER
+supabase.auth.onAuthStateChange((_event, session) => {
+  if (session) showDashboard();
+  else showAuth();
+});
 </script>
+
 
 </body>
 </html>
