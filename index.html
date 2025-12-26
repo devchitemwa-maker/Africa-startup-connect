@@ -1,361 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Africa Startup Connect - Connect with entrepreneurs, investors, and partners across Africa" />
-  <title>Africa Startup Connect</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .loading {
-      opacity: 0.6;
-      pointer-events: none;
-    }
-    .fade-in {
-      animation: fadeIn 0.3s ease-in-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Africa Startup Connect</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
-<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+<body class="bg-gray-50 min-h-screen">
 
 <!-- HEADER -->
-<header class="border-b bg-white shadow-sm sticky top-0 z-10">
+<header class="bg-white border-b shadow">
   <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-      </div>
-      <h1 class="text-2xl font-bold text-blue-600">Africa Startup Connect</h1>
-    </div>
-    <button id="logoutBtn" class="hidden border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 flex items-center gap-2">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-      </svg>
-      Log Out
-    </button>
+    <h1 class="text-xl font-bold text-blue-600">Africa Startup Connect</h1>
+    <button id="logoutBtn" class="hidden px-4 py-2 border rounded">Logout</button>
   </div>
 </header>
 
-<!-- MAIN CONTENT -->
-<main class="flex-grow">
-  
-<!-- AUTH SECTION -->
-<section id="auth" class="max-w-md mx-auto py-16 px-6 fade-in">
-  <div class="bg-white rounded-2xl shadow-lg p-8">
-    <div class="text-center mb-8">
-      <h3 class="text-2xl font-bold mb-2">Welcome Back</h3>
-      <p class="text-gray-600">Create an account or login to continue</p>
-    </div>
+<!-- AUTH -->
+<section id="auth" class="max-w-md mx-auto mt-16 bg-white p-8 rounded-lg shadow">
+  <h2 class="text-2xl font-bold text-center mb-6">Login / Sign Up</h2>
 
-    <!-- Tab Switcher -->
-    <div class="flex mb-6 bg-gray-100 rounded-lg p-1">
-      <button id="tabLogin" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 bg-white shadow text-gray-800">
-        Log In
-      </button>
-      <button id="tabSignup" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 text-gray-600 hover:text-gray-800">
-        Sign Up
-      </button>
-    </div>
+  <input id="full_name" class="w-full border p-3 mb-3 rounded" placeholder="Full Name" />
+  <input id="email" class="w-full border p-3 mb-3 rounded" placeholder="Email" />
+  <input id="password" type="password" class="w-full border p-3 mb-3 rounded" placeholder="Password" />
 
-    <!-- Auth Form -->
-    <form id="authForm" class="space-y-4">
-      <div id="fullNameGroup" class="hidden">
-        <label for="full_name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-        <input id="full_name" type="text" placeholder="Enter your full name" 
-               class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-               autocomplete="name" />
-        <p id="fullNameError" class="text-red-500 text-sm mt-1 hidden"></p>
-      </div>
+  <select id="role" class="w-full border p-3 mb-3 rounded">
+    <option value="">Select Role</option>
+    <option value="entrepreneur">Entrepreneur</option>
+    <option value="investor">Investor</option>
+    <option value="partner">Partner</option>
+  </select>
 
-      <div>
-        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-        <input id="email" type="email" placeholder="Enter your email" 
-               class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-               autocomplete="email" />
-        <p id="emailError" class="text-red-500 text-sm mt-1 hidden"></p>
-      </div>
+  <button id="signupBtn" class="w-full bg-blue-600 text-white py-2 rounded mb-2">Create Account</button>
+  <button id="loginBtn" class="w-full border py-2 rounded">Login</button>
+</section>
 
-      <div>
-        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-        <div class="relative">
-          <input id="password" type="password" placeholder="Enter your password" 
-                 class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 pr-10"
-                 autocomplete="new-password" />
-          <button type="button" id="togglePassword" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-            </svg>
-          </button>
-        </div>
-        <p id="passwordError" class="text-red-500 text-sm mt-1 hidden"></p>
-        <div id="passwordStrength" class="mt-2 hidden">
-          <div class="h-1 bg-gray-200 rounded-full overflow-hidden">
-            <div id="passwordStrengthBar" class="h-full transition-all duration-300" style="width: 0%"></div>
-          </div>
-          <p id="passwordStrengthText" class="text-xs mt-1"></p>
-        </div>
-      </div>
+<!-- DASHBOARD -->
+<section id="dashboard" class="hidden max-w-5xl mx-auto mt-10">
+  <h2 class="text-2xl font-bold mb-2">Welcome <span id="userName"></span></h2>
+  <p class="mb-4">Role: <span id="userRole"></span></p>
 
-      <div id="roleGroup" class="hidden">
-        <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Select Your Role</label>
-        <select id="role" class="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white">
-          <option value="">Choose a role...</option>
-          <option value="entrepreneur">Entrepreneur</option>
-          <option value="investor">Investor</option>
-          <option value="partner">Partner</option>
-        </select>
-        <p id="roleError" class="text-red-500 text-sm mt-1 hidden"></p>
-      </div>
+  <div id="entrepreneur" class="hidden p-4 bg-white rounded shadow">
+    <h3 class="font-bold mb-2">Entrepreneur Dashboard</h3>
+    <p>Create and manage your startup.</p>
+  </div>
 
-      <button id="submitBtn" type="submit" class="bg-blue-600 text-white w-full py-3 rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-        <span id="submitText">Log In</span>
-        <svg id="submitSpinner" class="w-5 h-5 animate-spin hidden" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-      </button>
-    </form>
+  <div id="investor" class="hidden p-4 bg-white rounded shadow">
+    <h3 class="font-bold mb-2">Investor Dashboard</h3>
+    <p>Browse and invest in startups.</p>
+  </div>
 
-    <p id="authMessage" class="text-center text-sm text-gray-600 mt-4"></p>
+  <div id="partner" class="hidden p-4 bg-white rounded shadow">
+    <h3 class="font-bold mb-2">Partner Dashboard</h3>
+    <p>Collaborate on projects.</p>
   </div>
 </section>
 
-<!-- DASHBOARD SECTION -->
-<section id="dashboard" class="hidden max-w-6xl mx-auto py-12 px-6 fade-in">
-  
-  <!-- Welcome Header -->
-  <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-8 text-white mb-8">
-    <h2 class="text-3xl font-bold mb-2">
-      Welcome back, <span id="profileName" class="text-yellow-300"></span>
-    </h2>
-    <p class="text-blue-100 flex items-center gap-2">
-      <span id="profileRole" class="bg-white/20 px-3 py-1 rounded-full text-sm font-medium"></span>
-    </p>
-  </div>
-
-  <!-- Role-Specific Content -->
-  <div id="roleContent" class="grid gap-6">
-    
-    <!-- Entrepreneur Dashboard -->
-    <div id="entrepreneurSection" class="hidden bg-white rounded-xl shadow-lg p-6">
-      <div class="flex items-center gap-3 mb-4">
-        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-          <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-          </svg>
-        </div>
-        <div>
-          <h3 class="text-xl font-bold text-gray-800">Entrepreneur Dashboard</h3>
-          <p class="text-gray-600">Create and manage your projects</p>
-        </div>
-      </div>
-      <div class="border-t pt-4">
-        <button class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-          </svg>
-          Create New Project
-        </button>
-      </div>
-    </div>
-
-    <!-- Investor Dashboard -->
-    <div id="investorSection" class="hidden bg-white rounded-xl shadow-lg p-6">
-      <div class="flex items-center gap-3 mb-4">
-        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-          <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-        </div>
-        <div>
-          <h3 class="text-xl font-bold text-gray-800">Investor Dashboard</h3>
-          <p class="text-gray-600">Discover and invest in promising projects</p>
-        </div>
-      </div>
-      <div class="border-t pt-4">
-        <div class="grid gap-4 sm:grid-cols-3">
-          <div class="bg-purple-50 rounded-lg p-4 text-center">
-            <p class="text-2xl font-bold text-purple-600">$0</p>
-            <p class="text-sm text-gray-600">Total Invested</p>
-          </div>
-          <div class="bg-purple-50 rounded-lg p-4 text-center">
-            <p class="text-2xl font-bold text-purple-600">0</p>
-            <p class="text-sm text-gray-600">Projects Funded</p>
-          </div>
-          <div class="bg-purple-50 rounded-lg p-4 text-center">
-            <p class="text-2xl font-bold text-purple-600">0</p>
-            <p class="text-sm text-gray-600">Active Deals</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Partner Dashboard -->
-    <div id="partnerSection" class="hidden bg-white rounded-xl shadow-lg p-6">
-      <div class="flex items-center gap-3 mb-4">
-        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-          <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-          </svg>
-        </div>
-        <div>
-          <h3 class="text-xl font-bold text-gray-800">Partner Dashboard</h3>
-          <p class="text-gray-600">Join projects with your skills</p>
-        </div>
-      </div>
-      <div class="border-t pt-4">
-        <div class="space-y-3">
-          <div class="flex items-center justify-between p-4 bg-orange-50 rounded-lg">
-            <div>
-              <p class="font-medium text-gray-800">Available Opportunities</p>
-              <p class="text-sm text-gray-600">3 new projects need your expertise</p>
-            </div>
-            <button class="text-orange-600 hover:text-orange-700 font-medium text-sm">View All →</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-</section>
-
-</main>
-
-<!-- FOOTER -->
-<footer class="bg-white border-t mt-auto">
-  <div class="max-w-7xl mx-auto px-6 py-6 text-center text-gray-600 text-sm">
-    <p>© 2025 Africa Startup Connect. All rights reserved.</p>
-  </div>
-</footer>
-
-<!-- STATUS NOTIFICATION -->
-<div id="status" class="fixed bottom-4 right-4 hidden px-6 py-3 rounded-lg shadow-lg fade-in z-50"></div>
-
-<!-- SUPABASE -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
-/**
- * Africa Startup Connect - Application Logic
- * Version: 2.0.0
- */
-
-// ============================================================================
-// CONFIGURATION
-// ============================================================================
-
-// IMPORTANT: Replace these with your actual Supabase credentials
-<script>
-const supabase = supabase.createClient(
- "https://unyvcihnjlkanwfrnoop.supabase.co",
- "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVueXZjaWhuamxrYW53ZnJub29wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NTg0NjYsImV4cCI6MjA4MTUzNDQ2Nn0.F_MApAFHM_OZPbQzpScUtyRtDvWjsHBBC4rmqyB6V-k"
-
+/* ================= SUPABASE CONFIG ================= */
+const supabase = window.supabase.createClient(
+  "https://unyvcihnjlkanwfrnoop.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVueXZjaWhuamxrYW53ZnJub29wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NTg0NjYsImV4cCI6MjA4MTUzNDQ2Nn0.F_MApAFHM_OZPbQzpScUtyRtDvWjsHBBC4rmqyB6V-k"
 );
 
-// DOM
-const auth = document.getElementById("auth");
+/* ================= ELEMENTS ================= */
+const authBox = document.getElementById("auth");
 const dashboard = document.getElementById("dashboard");
 const logoutBtn = document.getElementById("logoutBtn");
 
-const profileName = document.getElementById("profileName");
-const profileRole = document.getElementById("profileRole");
+const fullName = document.getElementById("full_name");
+const email = document.getElementById("email");
+const password = document.getElementById("password");
+const role = document.getElementById("role");
 
-const entrepreneurSection = document.getElementById("entrepreneurSection");
-const investorSection = document.getElementById("investorSection");
-const partnerSection = document.getElementById("partnerSection");
+const userName = document.getElementById("userName");
+const userRole = document.getElementById("userRole");
 
-// -------- AUTH HANDLERS --------
+const entrepreneur = document.getElementById("entrepreneur");
+const investor = document.getElementById("investor");
+const partner = document.getElementById("partner");
+
+/* ================= AUTH LOGIC ================= */
+
 async function showDashboard() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return showAuth();
+  const { data } = await supabase.auth.getUser();
+  if (!data?.user) return;
 
-  const { data: profile, error } = await supabase
+  const { data: profile } = await supabase
     .from("profiles")
     .select("*")
-    .eq("id", user.id)
+    .eq("id", data.user.id)
     .single();
 
-  if (error) {
-    console.error(error);
-    return;
-  }
+  auth.style.display = "none";
+  dashboard.style.display = "block";
+  logoutBtn.style.display = "block";
 
-  auth.classList.add("hidden");
-  dashboard.classList.remove("hidden");
-  logoutBtn.classList.remove("hidden");
+  userName.textContent = profile.full_name;
+  userRole.textContent = profile.role;
 
-  profileName.textContent = profile.full_name;
-  profileRole.textContent = profile.role;
+  entrepreneur.style.display = "none";
+  investor.style.display = "none";
+  partner.style.display = "none";
 
-  entrepreneurSection.classList.add("hidden");
-  investorSection.classList.add("hidden");
-  partnerSection.classList.add("hidden");
-
-  if (profile.role === "entrepreneur") entrepreneurSection.classList.remove("hidden");
-  if (profile.role === "investor") investorSection.classList.remove("hidden");
-  if (profile.role === "partner") partnerSection.classList.remove("hidden");
+  if (profile.role === "entrepreneur") entrepreneur.style.display = "block";
+  if (profile.role === "investor") investor.style.display = "block";
+  if (profile.role === "partner") partner.style.display = "block";
 }
 
-function showAuth() {
-  auth.classList.remove("hidden");
-  dashboard.classList.add("hidden");
-  logoutBtn.classList.add("hidden");
+async function login() {
+  const { error } = await supabase.auth.signInWithPassword({
+    email: email.value,
+    password: password.value
+  });
+
+  if (error) return alert(error.message);
+  showDashboard();
 }
 
-// LOGIN
-async function login(email, password) {
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) alert(error.message);
-}
-
-// SIGNUP
-async function signup(email, password, fullName, role) {
+async function signup() {
   const { data, error } = await supabase.auth.signUp({
-    email,
-    password
+    email: email.value,
+    password: password.value
   });
 
   if (error) return alert(error.message);
 
   await supabase.from("profiles").insert({
     id: data.user.id,
-    full_name: fullName,
-    role
+    full_name: fullName.value,
+    role: role.value
   });
+
+  alert("Account created. Please login.");
 }
 
-// LOGOUT
 logoutBtn.onclick = async () => {
   await supabase.auth.signOut();
-  showAuth();
+  location.reload();
 };
 
-// SESSION WATCHER
-supabase.auth.onAuthStateChange((_event, session) => {
-  if (session) showDashboard();
-  else showAuth();
+/* BUTTONS */
+document.getElementById("loginBtn").onclick = login;
+document.getElementById("signupBtn").onclick = signup;
+
+/* AUTO LOGIN */
+supabase.auth.getSession().then(({ data }) => {
+  if (data.session) showDashboard();
 });
 </script>
 
-
 </body>
 </html>
+
 
 
 
