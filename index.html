@@ -59,18 +59,20 @@ async function signup() {
 }
 
 async function login() {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-
-  const { error } = await supabaseClient.auth.signInWithPassword({
-    email,
-    password
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email.value,
+    password: password.value
   });
 
-  if (error) return show(error.message);
+  if (error) {
+    show(error.message);
+    return;
+  }
 
-  show("Login successful!");
+  // SUCCESS → SHOW DASHBOARD
+  showDashboard();
 }
+
 
 function show(msg) {
   document.getElementById("msg").innerText = msg;
