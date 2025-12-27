@@ -1,87 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Africa Startup Connect</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta charset="UTF-8" />
+  <title>Africa Startup Connect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
-<body class="bg-gray-100 p-10">
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
 
-<div class="max-w-md mx-auto bg-white p-6 rounded shadow">
-  <h2 class="text-xl font-bold mb-4">Login / Signup</h2>
+<!-- LOGIN / SIGNUP -->
+<div id="auth" class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+  <h2 class="text-2xl font-bold mb-4 text-center">Login / Signup</h2>
 
-  <input id="email" class="border p-2 w-full mb-2" placeholder="Email" />
-  <input id="password" type="password" class="border p-2 w-full mb-2" placeholder="Password" />
-  <input id="name" class="border p-2 w-full mb-2" placeholder="Full Name (signup only)" />
+  <input id="email" class="w-full border p-3 mb-3 rounded" placeholder="Email" />
+  <input id="password" type="password" class="w-full border p-3 mb-3 rounded" placeholder="Password" />
+  <input id="name" class="w-full border p-3 mb-3 rounded" placeholder="Full Name (signup only)" />
 
-  <button onclick="signup()" class="bg-blue-600 text-white w-full py-2 rounded mb-2">
+  <button onclick="signup()" class="w-full bg-blue-600 text-white py-2 rounded mb-2">
     Sign Up
   </button>
 
-  <button onclick="login()" class="bg-gray-800 text-white w-full py-2 rounded">
+  <button onclick="login()" class="w-full bg-gray-800 text-white py-2 rounded">
     Login
   </button>
 
-  <p id="msg" class="mt-4 text-sm"></p>
+  <p id="msg" class="text-center mt-3 text-red-500"></p>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="hidden w-full max-w-xl mx-auto mt-10 text-center">
+  <h2 class="text-2xl font-bold">Welcome 👋</h2>
+  <p id="userInfo" class="mt-2 text-gray-700"></p>
+
+  <button onclick="logout()" class="mt-6 bg-red-600 text-white px-4 py-2 rounded">
+    Logout
+  </button>
 </div>
 
 <script>
-const supabaseClient = window.supabase.createClient(
-  "https://unyvcihnjlkanwfrnoop.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVueXZjaWhuamxrYW53ZnJub29wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NTg0NjYsImV4cCI6MjA4MTUzNDQ2Nn0.F_MApAFHM_OZPbQzpScUtyRtDvWjsHBBC4rmqyB6V-k"
-
+/* ================= CONFIG ================= */
+const supabase = supabase.createClient(
+  "https://unyvcihnjlkanwfrnoop.supabase.co",   // 🔁 YOUR PROJECT URL
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVueXZjaWhuamxrYW53ZnJub29wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NTg0NjYsImV4cCI6MjA4MTUzNDQ2Nn0.F_MApAFHM_OZPbQzpScUtyRtDvWjsHBBC4rmqyB6V-k"                  // 🔁 PASTE YOUR PUBLIC ANON KEY
 );
 
+/* ================= AUTH FUNCTIONS ================= */
+
 async function signup() {
-  const email = document.getElementById("email").value.trim();
+  const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-  const name = document.getElementById("name").value.trim();
+  const name = document.getElementById("name").value;
 
-  if (!email || !password || !name) {
-    return show("All fields are required");
-  }
-
-  const { data, error } = await supabaseClient.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password
   });
 
-  if (error) return show(error.message);
+  if (error) {
+    document.getElementById("msg").innerText = error.message;
+    return;
+  }
 
-  await supabaseClient.from("profiles").insert({
+  await supabase.from("profiles").insert({
     id: data.user.id,
     full_name: name
   });
 
-  show("Signup successful. Now login.");
+  document.getElementById("msg").innerText = "Account created. Please login.";
 }
 
 async function login() {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: email.value,
-    password: password.value
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password
   });
 
   if (error) {
-    show(error.message);
+    document.getElementById("msg").innerText = error.message;
     return;
   }
-
-  // SUCCESS → SHOW DASHBOARD
-  showDashboard();
 }
 
-
-function show(msg) {
-  document.getElementById("msg").innerText = msg;
+async function logout() {
+  await supabase.auth.signOut();
+  showAuth();
 }
+
+/* ================= UI STATE ================= */
+
+function showDashboard(user) {
+  document.getElementById("auth").style.display = "none";
+  document.getElementById("dashboard").style.display = "block";
+  document.getElementById("userInfo").innerText = `Logged in as ${user.email}`;
+}
+
+function showAuth() {
+  document.getElementById("auth").style.display = "block";
+  document.getElementById("dashboard").style.display = "none";
+}
+
+/* ================= SESSION LISTENER ================= */
+
+supabase.auth.onAuthStateChange((event, session) => {
+  if (session) {
+    showDashboard(session.user);
+  } else {
+    showAuth();
+  }
+});
+
+/* Auto-check on load */
+supabase.auth.getSession().then(({ data }) => {
+  if (data.session) showDashboard(data.session.user);
+});
 </script>
-
 
 </body>
 </html>
+
 
 
 
