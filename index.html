@@ -23,26 +23,34 @@
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+/* ================== CONFIG ================== */
 const SUPABASE_URL = "https://unyvcihnjlkanwfrnoop.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVueXZjaWhuamxrYW53ZnJub29wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NTg0NjYsImV4cCI6MjA4MTUzNDQ2Nn0.F_MApAFHM_OZPbQzpScUtyRtDvWjsHBBC4rmqyB6V-k";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVueXZjaWhuamxrYW53ZnJub29wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NTg0NjYsImV4cCI6MjA4MTUzNDQ2Nn0.F_MApAFHM_OZPbQzpScUtyRtDvWjsHBBC4rmqyB6V-k"; // paste real key
 
 const supabase = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
 );
 
+/* ================== ELEMENTS ================== */
 const authBox = document.getElementById("auth");
 const dashboard = document.getElementById("dashboard");
 const msg = document.getElementById("msg");
-const userInfo = document.getElementById("userInfo");
 
-/* ================= AUTH HANDLERS ================= */
+/* ================== AUTH ================== */
 
 async function signup() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const name = document.getElementById("name").value.trim();
+
+  if (!email || !password) {
+    msg.innerText = "Email and password required";
+    return;
+  }
 
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -54,18 +62,17 @@ async function signup() {
     return;
   }
 
-  // Create profile
   await supabase.from("profiles").insert({
     id: data.user.id,
     full_name: name
   });
 
-  msg.innerText = "Account created. Please login.";
+  msg.innerText = "Signup successful. Please log in.";
 }
 
 async function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
 
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -80,26 +87,25 @@ async function login() {
   showDashboard(data.user);
 }
 
-async function logout() {
-  await supabase.auth.signOut();
-  location.reload();
-}
-
-/* ================= UI LOGIC ================= */
-
-function showDashboard(user) {
+async function showDashboard(user) {
   document.getElementById("auth").style.display = "none";
   document.getElementById("dashboard").style.display = "block";
   document.getElementById("userInfo").innerText = `Logged in as ${user.email}`;
 }
 
-/* 🔥 VERY IMPORTANT: SESSION RESTORE */
-supabase.auth.onAuthStateChange((event, session) => {
-  if (session?.user) {
-    showDashboard(session.user);
+async function logout() {
+  await supabase.auth.signOut();
+  location.reload();
+}
+
+/* AUTO LOGIN */
+supabase.auth.getSession().then(({ data }) => {
+  if (data.session) {
+    showDashboard(data.session.user);
   }
 });
 </script>
+
 
 
 </body>
